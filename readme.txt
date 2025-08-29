@@ -53,8 +53,3 @@
 - 진단서 및 각종 문서 PDF 생성  
 
 ---
-
-## 🚀 실행 방법
-```bash
-git clone <repository-url>
-./gradlew bootRun
