@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{doctors.new.title}">의료진 등록</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        #imagePreview {
+          width: 100%;
+          height: auto;
+          max-height: 300px;
+          object-fit: cover;
+          border: 1px solid #ccc;
+          margin-top: 10px;
+        }
+        .form-section-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          border-left: 4px solid #0d6efd;
+          padding-left: 10px;
+          margin-top: 30px;
+          margin-bottom: 15px;
+          color: #0d6efd;
+        }
+
+        .container{
+            padding: 4rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div th:replace="fragments/header :: header"></div>
+<div class="container mt-5 mb-5">
+    <div th:if="${param.error} == 'missingImage'" class="alert alert-danger" role="alert">
+        <span th:text="#{doctors.new.error.missingImage}">프로필 이미지를 등록해주세요.</span>
+    </div>
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0" th:text="#{doctors.new.title}">의료진 등록</h4>
+        </div>
+        <div class="card-body">
+            <form id="doctorForm" method="post" th:action="@{/doctors/add}" enctype="multipart/form-data">
+                <div class="form-section-title" th:text="#{doctors.new.section.basic}">기본 정보</div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label" th:text="#{name}">이름</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label d-block" th:text="#{gender}">성별</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gender" id="male" value="M">
+                            <label class="form-check-label" for="male" th:text="#{gender.male}">남</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="gender" id="female" value="F">
+                            <label class="form-check-label" for="female" th:text="#{gender.female}">여</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="birthDate" class="form-label" th:text="#{birthdate}">생년월일</label>
+                        <input type="date" class="form-control" id="birthDate" name="birthDate">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="department" class="form-label" th:text="#{department}">진료과</label>
+                        <select class="form-select" id="department" name="department" required>
+                            <option value="" th:text="#{doctors.new.department.select}">진료과 선택</option>
+                            <option th:each="dept : ${departmentList}"
+                                    th:value="${lang == 'en' ? dept.nameEn : dept.name}"
+                                    th:text="${lang == 'en' ? dept.nameEn : dept.name}"
+                                    th:selected="${dept.name == selectedDept}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="position" class="form-label" th:text="#{doctors.new.position}">직책</label>
+                        <input type="text" class="form-control" id="position" name="position" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label" th:text="#{email}">이메일</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <button type="button" class="btn btn-outline-secondary" onclick="checkEmail()" th:text="#{email.duplicate.check}">중복 확인</button>
+                        </div>
+                        <input type="hidden" id="emailChecked" value="false">
+                        <div id="emailCheckResult" class="form-text text-danger" th:text="#{doctors.new.email.check.need}">이메일 중복 확인이 필요합니다.</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" th:text="#{phone}">전화번호</label>
+                    <div class="d-flex gap-2">
+                        <input type="text" id="phone1" class="form-control only-number" maxlength="3" required>
+                        <input type="text" id="phone2" class="form-control only-number" maxlength="4" required>
+                        <input type="text" id="phone3" class="form-control only-number" maxlength="4" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label" th:text="#{doctors.new.intro}">자기소개</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <!-- 숨김 필드: 실제 제출용 영문 자기소개 -->
+                <input type="hidden" id="descriptionEn" name="descriptionEn">
+                <!-- 미리보기: 자동 번역된 영문 자기소개 -->
+                <div class="mb-3">
+                    <label class="form-label" th:text="#{doctors.new.intro.en}">자기소개(영문)</label>
+                    <textarea class="form-control" id="descriptionEnPreview" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="profileImageFile" class="form-label" th:text="#{doctors.new.profileImage}">프로필 이미지</label>
+                    <input type="file" class="form-control" id="profileImageFile" name="profileImageFile" accept="image/*">
+                    <img id="imagePreview" src="#" th:alt="#{doctors.new.preview}" style="display: none;">
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary" th:text="#{doctors.new.submit}" id="submitBtn" th:attr="data-submitting-text=#{doctors.new.submitting}">등록하기</button>
+                </div>
+
+                <!-- Hidden 필드 -->
+                <input type="hidden" name="phone" id="fullPhone">
+            </form>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments/footer :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 이미지 미리보기
+    document.getElementById("profileImageFile").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById("imagePreview");
+    const maxWidth = 150;
+    const maxHeight = 150;
+
+    if (file) {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+
+            img.onload = function () {
+                if (img.width > maxWidth || img.height > maxHeight) {
+                    alert(`[[#{doctors.new.image.size.alert}]]`);
+                    event.target.value = '';  // 입력 초기화
+                    preview.src = "";
+                    preview.style.display = "none";
+                } else {
+                    // 조건 통과 시 미리보기 표시
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = "block";
+                        preview.style.maxWidth = maxWidth + 'px';
+                        preview.style.maxHeight = maxHeight + "px";
+                        preview.style.objectFit = "cover";
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                URL.revokeObjectURL(img.src); // 메모리 해제
+            };
+        } else {
+            preview.src = "";
+            preview.style.display = "none";
+        }
+    });
+
+    // 생년월일 제한
+    window.addEventListener('DOMContentLoaded', () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('birthDate').setAttribute('max', today);
+    });
+
+    // 숫자만 입력
+    document.querySelectorAll('.only-number').forEach(input => {
+        input.addEventListener('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    });
+
+    function validateForm() {
+        // 성별 선택 확인
+        const genderInputs = document.querySelectorAll('input[name="gender"]');
+        const genderSelected = Array.from(genderInputs).some(input => input.checked);
+        if (!genderSelected) {
+            alert("[[#{doctors.new.error.missingGender}]]");
+            return false;
+        }
+
+        // 생년월일 입력 확인
+        const birthDate = document.getElementById("birthDate").value.trim();
+        if (!birthDate) {
+            alert("[[#{doctors.new.error.missingBirthDate}]]");
+            return false;
+        }
+
+        // 직책 입력 확인
+        const position = document.getElementById("position").value.trim();
+        if (!position) {
+            alert("[[#{doctors.new.error.missingPosition}]]");
+            return false;
+        }
+
+        // 자기소개 입력 확인
+        const description = document.getElementById("description").value.trim();
+        if (!description) {
+            alert("[[#{doctors.new.error.missingIntro}]]");
+            return false;
+        }
+
+        // 이메일 중복 체크 확인
+        const emailChecked = document.getElementById("emailChecked").value;
+        if (emailChecked !== "true") {
+            alert("[[#{doctors.new.email.check.alert}]]");
+            return false;
+        }
+
+        // 전화번호 병합
+        const p1 = document.getElementById("phone1").value;
+        const p2 = document.getElementById("phone2").value;
+        const p3 = document.getElementById("phone3").value;
+        document.getElementById("fullPhone").value = `${p1}-${p2}-${p3}`;
+
+        // 이미지 등록 여부 확인
+        const imageInput = document.getElementById("profileImageFile");
+        if (!imageInput.files || imageInput.files.length === 0) {
+            alert("[[#{doctors.new.error.missingImage}]]");
+            return false;
+        }
+
+        return true;
+    }
+
+    // 이메일 중복 확인
+    document.getElementById("email").addEventListener("input", function () {
+        document.getElementById("emailChecked").value = "false";
+        const resultDiv = document.getElementById("emailCheckResult");
+        resultDiv.textContent = "[[#{doctors.new.email.check.need}]]";
+        resultDiv.classList.remove("text-success");
+        resultDiv.classList.add("text-danger");
+    });
+
+    function checkEmail() {
+        const emailInput = document.getElementById("email");
+        const email = emailInput.value.trim();
+        const resultDiv = document.getElementById("emailCheckResult");
+
+        if (!email) {
+            resultDiv.textContent = "[[#{email.input.need}]]";
+            resultDiv.classList.remove("text-success");
+            resultDiv.classList.add("text-danger");
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            resultDiv.textContent = "[[#{email.format.invalid}]]";
+            resultDiv.classList.remove("text-success");
+            resultDiv.classList.add("text-danger");
+            return;
+        }
+
+        fetch(`/check_email?email=${encodeURIComponent(email)}`)
+            .then(res => res.text())
+            .then(status => {
+                if (status === "duplicate") {
+                    resultDiv.textContent = "[[#{doctors.new.email.duplicate}]]";
+                    resultDiv.classList.remove("text-success");
+                    resultDiv.classList.add("text-danger");
+                    document.getElementById("emailChecked").value = "false";
+                } else {
+                    resultDiv.textContent = "[[#{doctors.new.email.available}]]";
+                    resultDiv.classList.remove("text-danger");
+                    resultDiv.classList.add("text-success");
+                    document.getElementById("emailChecked").value = "true";
+                }
+            })
+            .catch(() => {
+                resultDiv.textContent = "[[#{doctors.new.email.error}]]";
+                resultDiv.classList.remove("text-success");
+                resultDiv.classList.add("text-danger");
+                document.getElementById("emailChecked").value = "false";
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var desc = document.getElementById("description");
+        var descEn = document.getElementById("descriptionEn");
+        var descEnPreview = document.getElementById("descriptionEnPreview");
+        var debounceTimer = null;
+        if (desc && descEn && descEnPreview) {
+            desc.addEventListener("input", function() {
+                const koreanText = this.value;
+                if (!koreanText.trim() || koreanText.length < 2) {
+                    descEn.value = "";
+                    descEnPreview.value = "";
+                    return;
+                }
+                if (debounceTimer) clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function() {
+                    fetch('/api/translate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: 'text=' + encodeURIComponent(koreanText)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        descEn.value = data.en || "";
+                        descEnPreview.value = data.en || "";
+                    })
+                    .catch(() => {
+                        descEn.value = "";
+                        descEnPreview.value = "";
+                    });
+                }, 700); // 0.7초 지연
+            });
+        }
+        // 폼 제출 시 descriptionEnPreview 값을 descriptionEn(hidden)에 복사
+        var doctorForm = document.getElementById("doctorForm");
+        var submitBtn = document.getElementById("submitBtn");
+        var submittingText = submitBtn ? submitBtn.getAttribute('data-submitting-text') : '등록 중...';
+        if (doctorForm && descEn && descEnPreview && submitBtn) {
+            doctorForm.addEventListener("submit", function(event) {
+                // 폼 검증 먼저 수행
+                const isValid = validateForm();
+                if (!isValid) {
+                    event.preventDefault(); // 제출 중단
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = submitBtn.getAttribute('data-original-text') || submitBtn.textContent;
+                    return;
+                }
+
+                // 유효하면 번역값 복사 및 버튼 비활성화
+                descEn.value = descEnPreview.value;
+                submitBtn.disabled = true;
+                submitBtn.innerText = submittingText;
+            });
+        }
+    });
+</script>
+</body>
+</html>

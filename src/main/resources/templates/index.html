@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="#{index.title}">더좋은병원 - 환자를 위한 최고의 의료서비스</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hospital-blue: #1e40af;
+      --hospital-light-blue: #3b82f6;
+      --hospital-green: #059669;
+      --hospital-light-green: #10b981;
+      --hospital-gray: #6b7280;
+      --hospital-light-gray: #f3f4f6;
+      --hospital-dark: #1f2937;
+      --hospital-white: #ffffff;
+      --hospital-border: #e5e7eb;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      line-height: 1.6;
+      color: var(--hospital-dark);
+      background-color: var(--hospital-white);
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, var(--hospital-blue) 0%, var(--hospital-light-blue) 100%);
+      color: white;
+      padding: 4rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="medical" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="2" fill="white" opacity="0.1"/><path d="M20 20 L30 30 M30 20 L20 30" stroke="white" stroke-width="1" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23medical)"/></svg>');
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--hospital-blue);
+    }
+
+    .card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      background: white;
+      overflow: hidden;
+      border: 1px solid var(--hospital-border);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .feature-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 1.8rem;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .feature-icon.internal {
+      background: linear-gradient(135deg, var(--hospital-blue), var(--hospital-light-blue));
+    }
+
+    .feature-icon.orthopedics {
+      background: linear-gradient(135deg, var(--hospital-green), var(--hospital-light-green));
+    }
+
+    .feature-icon.pediatrics {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--hospital-blue), var(--hospital-light-blue));
+      border: none;
+      border-radius: 8px;
+      padding: 12px 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+    }
+
+    .carousel-item img {
+      height: 500px;
+      object-fit: cover;
+      filter: brightness(0.8);
+    }
+
+    .carousel-caption {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stats-section {
+      background: var(--hospital-light-gray);
+      padding: 4rem 0;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--hospital-border);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--hospital-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--hospital-gray);
+      font-weight: 500;
+    }
+
+    .cta-section {
+      background: linear-gradient(135deg, var(--hospital-dark) 0%, #374151 100%);
+      color: white;
+      padding: 4rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .info-section {
+      padding: 4rem 0;
+      background: white;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--hospital-border);
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .info-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .info-icon.blue {
+      background: var(--hospital-blue);
+    }
+
+    .info-icon.green {
+      background: var(--hospital-green);
+    }
+
+    .info-icon.orange {
+      background: #f59e0b;
+    }
+
+    .floating-animation {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
+
+    .emergency-info {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .emergency-info i {
+      margin-right: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .carousel-item img {
+        height: 350px;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<div th:replace="fragments/header :: header"></div>
+
+<!-- 메인 콘텐츠 -->
+<main class="container-fluid px-0">
+
+  <!-- 배너 슬라이드 -->
+  <div id="mainBanner" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="/images/케이스1.jpg" class="d-block w-100" alt="병원 외관">
+        <div class="carousel-caption text-white">
+          <h2 class="fw-bold mb-3" th:text="#{index.slide1.title}">환자를 위한 더좋은 병원</h2>
+          <p class="lead mb-4" th:text="#{index.slide1.desc}">첨단 진료와 따뜻한 진심으로 함께합니다</p>
+          <a th:href="@{/reservation}" class="btn btn-primary btn-lg" th:text="#{index.slide1.button}">진료 예약하기</a>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="/images/케이스2.jpg" class="d-block w-100" alt="의료진 모습">
+        <div class="carousel-caption text-white">
+          <h2 class="fw-bold mb-3" th:text="#{index.slide2.title}">전문 의료진과 함께하는 치료</h2>
+          <p class="lead mb-4" th:text="#{index.slide2.desc}">정확한 진단과 최적의 치료를 약속드립니다</p>
+          <a th:href="@{/reservation}" class="btn btn-primary btn-lg" th:text="#{index.slide2.button}">예약 문의</a>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="/images/케이스3.jpg" class="d-block w-100" alt="첨단 장비">
+        <div class="carousel-caption text-white">
+          <h2 class="fw-bold mb-3" th:text="#{index.slide3.title}">최신 장비와 쾌적한 환경</h2>
+          <p class="lead mb-4" th:text="#{index.slide3.desc}">더 나은 진료 경험을 위해 준비했습니다</p>
+          <a th:href="@{/guide/visit}" class="btn btn-primary btn-lg" th:text="#{index.slide3.button}">오시는 길</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 환영 메시지 -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 hero-content fade-in">
+          <h1 class="display-4 fw-bold mb-4" th:text="#{index.welcome.title}">더좋은병원에 오신 것을 환영합니다</h1>
+          <p class="lead mb-4" th:text="#{index.welcome.desc}">진료예약, 의료진 정보, 고객센터까지 한 번에 확인하세요. 환자 중심의 의료서비스로 건강한 삶을 약속드립니다.</p>
+          <div class="d-flex gap-3">
+            <a th:href="@{/reservation}" class="btn btn-light btn-lg" th:text="#{index.welcome.button1}">진료 예약하기</a>
+            <a th:href="@{/guide/visit}" class="btn btn-outline-light btn-lg" th:text="#{index.welcome.button2}">오시는 길</a>
+          </div>
+        </div>
+        <div class="col-lg-6 text-center">
+          <div class="floating-animation">
+            <i class="bi bi-heart-pulse" style="font-size: 8rem; color: rgba(255,255,255,0.3);"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 긴급 정보 -->
+  <section class="container py-4">
+    <div class="emergency-info">
+      <i class="bi bi-telephone-fill"></i>
+      <strong th:text="#{index.emergency}">응급실: 1588-1234</strong> |
+      <i class="bi bi-clock"></i>
+      <strong th:text="#{index.time}">진료시간: 평일 09:00-18:30, 주말 09:00-16:30 </strong>
+      <i class="bi bi-clock"></i>
+      <strong th:text="#{index.lunch}">점심시간 : 12:00~14:00</strong>
+    </div>
+  </section>
+
+  <!-- 주요 진료과 -->
+  <section class="info-section">
+    <div class="container">
+      <h2 class="section-title text-center mb-5" th:text="#{index.section.major}">주요 진료과</h2>
+      <div class="row justify-content-center g-4">
+        <div class="col-md-4 fade-in delay-1">
+          <div class="info-card text-center">
+            <div class="info-icon blue">
+              <i class="bi bi-heart-pulse"></i>
+            </div>
+            <h5 class="card-title fw-bold mb-3" th:text="#{index.internal.title}">내과</h5>
+            <p class="card-text text-muted" th:text="#{index.internal.desc}">소화기, 호흡기, 순환기 질환 진료를 전문적으로 제공합니다.</p>
+            <a th:href="@{/departments/internal}" class="btn btn-outline-primary mt-3" th:text="#{index.detail}">자세히 보기</a>
+          </div>
+        </div>
+        <div class="col-md-4 fade-in delay-2">
+          <div class="info-card text-center">
+            <div class="info-icon green">
+              <i class="bi bi-bandaid"></i>
+            </div>
+            <h5 class="card-title fw-bold mb-3" th:text="#{index.ortho.title}">정형외과</h5>
+            <p class="card-text text-muted" th:text="#{index.ortho.desc}">뼈, 관절, 척추 질환 치료 및 수술을 전문적으로 시행합니다.</p>
+            <a th:href="@{/departments/orthopedics}" class="btn btn-outline-success mt-3" th:text="#{index.detail}">자세히 보기</a>
+          </div>
+        </div>
+        <div class="col-md-4 fade-in delay-3">
+          <div class="info-card text-center">
+            <div class="info-icon orange">
+              <i class="bi bi-emoji-smile"></i>
+            </div>
+            <h5 class="card-title fw-bold mb-3" th:text="#{index.pediatrics.title}">소아청소년과</h5>
+            <p class="card-text text-muted" th:text="#{index.pediatrics.desc}">영유아 및 청소년 건강 진료를 전문적으로 담당합니다.</p>
+            <a th:href="@{/departments/pediatrics}" class="btn btn-outline-warning mt-3" th:text="#{index.detail}">자세히 보기</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 통계 섹션 -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 stat-card fade-in">
+          <div class="stat-number">50+</div>
+          <div class="stat-label" th:text="#{index.stats.doctor}">전문의</div>
+        </div>
+        <div class="col-md-3 stat-card fade-in delay-1">
+          <div class="stat-number">10,000+</div>
+          <div class="stat-label" th:text="#{index.stats.patient}">연간 환자 수</div>
+        </div>
+        <div class="col-md-3 stat-card fade-in delay-2">
+          <div class="stat-number" th:text="#{index.stats.30years}">30년</div>
+          <div class="stat-label" th:text="#{index.stats.experience}">의료 경험</div>
+        </div>
+        <div class="col-md-3 stat-card fade-in delay-3">
+          <div class="stat-number">98%</div>
+          <div class="stat-label" th:text="#{index.stats.satisfaction}">환자 만족도</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA 섹션 -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="row justify-content-center text-center">
+        <div class="col-lg-8 cta-content">
+          <h2 class="display-5 fw-bold mb-4" th:text="#{index.cta.title}">지금 바로 진료 예약하세요</h2>
+          <p class="lead mb-4" th:text="#{index.cta.desc}">전문 의료진이 최고의 의료서비스를 제공합니다. 건강한 삶을 위한 첫 걸음을 시작하세요.</p>
+          <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a th:href="@{/reservation}" class="btn btn-primary btn-lg" th:text="#{index.cta.button1}">진료 예약</a>
+            <a th:href="@{/guide/faq}" class="btn btn-outline-light btn-lg" th:text="#{index.cta.button2}">자주 묻는 질문</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 푸터 -->
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- 안내 팝업(의사+초기주소+초기비밀번호) -->
+<div class="modal fade" id="changeInfoModal" tabindex="-1" aria-labelledby="changeInfoModalLabel" aria-hidden="true" th:if="${showChangeInfoPopup}">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning-subtle">
+        <h5 class="modal-title fw-bold" id="changeInfoModalLabel" th:text="#{index.changeinfo.title}">정보 변경 안내</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2" th:text="#{index.changeinfo.desc}">보안을 위해 주소지와 비밀번호를 반드시 변경해 주세요.</p>
+        <ul>
+          <li th:text="#{index.changeinfo.address}">주소지를 입력하지 않으면 진료 예약이 제한됩니다.</li>
+          <li th:text="#{index.changeinfo.password}">초기 비밀번호는 반드시 변경해야 합니다.</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <a th:href="@{/edit_profile}" class="btn btn-primary" th:text="#{index.changeinfo.edit}">정보 수정하기</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{cancel}">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 스크롤 애니메이션
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.fade-in').forEach(el => {
+    observer.observe(el);
+  });
+</script>
+<!-- 안내 팝업 JS: showChangeInfoPopup가 true일 때만 렌더링 -->
+<script th:if="${showChangeInfoPopup}" th:inline="javascript">
+  /*<![CDATA[*/
+  var myModal = new bootstrap.Modal(document.getElementById('changeInfoModal'));
+  window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { myModal.show(); }, 500);
+  });
+  /*]]>*/
+</script>
+</body>
+</html>

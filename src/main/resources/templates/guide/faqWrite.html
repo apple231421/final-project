@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{faq.write.title}">자주 묻는 질문 작성</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!--    html 양식으로 글 작성하게 해주는 스크립트-->
+    <script src="https://cdn.tiny.cloud/1/mktlb20x7afe52w9skphx1w443hawazmj76tgnrvwzl7a606/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '#content',
+            language: 'ko',
+            language_url: '/js/notice_ko.js', // 한국어 설정이 필요하면 유지
+            height: 400,
+            plugins: 'link lists code table',
+            toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | code table',
+            branding: false,
+            promotion: false,
+            setup: function (editor) {
+                document.querySelector('form').addEventListener('submit', function (e) {
+                    const content = tinymce.get('content').getContent({ format: 'text' }).trim();
+                    if (!content) {
+                        alert("내용을 입력해주세요.");
+                        e.preventDefault();
+                        tinymce.get('content').focus();
+                    }
+                });
+            }
+        });
+    </script>
+    <style>
+        body {
+          padding-top: 70px;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <div class="container mt-5 mb-5">
+        <h2 class="mb-4" th:text="#{faq.write.title}">자주 묻는 질문 문의 작성</h2>
+        <form th:action="@{/guide/faqWrite}" th:object="${faqForm}" method="post">
+            <!-- 제목 + 문의 분류 드롭다운 -->
+            <div class="row mb-3">
+                <!-- 제목 입력 -->
+                <div class="col-md-8">
+                    <label for="title" class="form-label" th:text="#{faq.title}">제목</label>
+                    <input type="text" th:field="*{title}" class="form-control" id="title" th:placeholder="#{faq.title.placeholder}" required>
+                </div>
+
+                <!-- 문의 분류 드롭다운 -->
+                <div class="col-md-4">
+                    <label for="category" class="form-label" th:text="#{faq.category}">문의 분류</label>
+                    <select th:field="*{faqCategory}" class="form-select" id="category" required>
+                        <option value="" th:text="#{faq.category.select}">선택하세요</option>
+                        <option value="병원이용안내" th:text="#{faq.category.hospital}">병원이용안내</option>
+                        <option value="증명서발급" th:text="#{faq.category.certificate}">증명서발급</option>
+                        <option value="홈페이지이용" th:text="#{faq.category.homepage}">홈페이지이용</option>
+                        <option value="기타" th:text="#{faq.category.etc}">기타</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 내용 -->
+            <div class="mb-3">
+                <label for="content" class="form-label" th:text="#{faq.content}">내용</label>
+                <textarea th:field="*{content}" class="form-control" id="content" name="content" rows="6" th:placeholder="#{faq.content.placeholder}"></textarea>
+            </div>
+
+            <!-- 제출 버튼 -->
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary" th:text="#{faq.submit}">등록</button>
+            </div>
+        </form>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

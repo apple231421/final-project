@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>병원 GPT 챗봇</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          min-height: 100vh;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          padding-bottom: 100px;
+        }
+
+        .main-container {
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+          margin: 2rem auto;
+          padding: 2.5rem;
+          max-width: 900px;
+        }
+    body {
+      padding-top: 80px; /* 헤더 높이만큼 밀어줌 */
+    }
+        .page-header {
+          text-align: center;
+          margin-bottom: 2rem;
+          padding-bottom: 1.5rem;
+          border-bottom: 2px solid #f8f9fa;
+        }
+
+        .page-header h2 {
+          color: #2c3e50;
+          font-size: 2.5rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+        }
+
+        .page-header .subtitle {
+          color: #6c757d;
+          font-size: 1.1rem;
+          font-weight: 400;
+        }
+
+        .chat-container {
+          background: white;
+          border-radius: 15px;
+          box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+          overflow: hidden;
+          border: 1px solid #e9ecef;
+          margin-bottom: 2rem;
+        }
+
+        #chatbox {
+          height: 600px; /* 원하는 높이로 변경 */
+          overflow-y: auto;
+          padding: 1.5rem;
+          background-color: #fafbfc;
+          border-bottom: 1px solid #e9ecef;
+        }
+
+        .chat-message {
+          margin-bottom: 1rem;
+          padding: 1rem;
+          border-radius: 15px;
+          max-width: 80%;
+          word-wrap: break-word;
+        }
+
+            .chat-user {
+              background: linear-gradient(135deg, #007bff, #0056b3);
+              color: white;
+              margin-left: auto;
+              text-align: right;
+            }
+
+            .chat-bot {
+              background: white;
+              color: #2c3e50;
+              border: 1px solid #e9ecef;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .chat-label {
+              font-weight: 600;
+              font-size: 0.9rem;
+              margin-bottom: 0.5rem;
+              display: block;
+            }
+
+            .chat-user .chat-label {
+              color: rgba(255, 255, 255, 0.9);
+            }
+
+            .chat-bot .chat-label {
+              color: #007bff;
+            }
+
+            .input-container {
+              padding: 1.5rem;
+              background: white;
+            }
+
+            .quick-questions {
+              margin-bottom: 1.5rem;
+              padding-bottom: 1.5rem;
+              border-bottom: 1px solid #f8f9fa;
+            }
+
+            .quick-questions .section-title {
+              color: #2c3e50;
+              font-size: 1rem;
+              font-weight: 600;
+              margin-bottom: 1rem;
+            }
+
+            .quick-btn {
+              background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+              border: 1px solid #dee2e6;
+              color: #495057;
+              border-radius: 20px;
+              padding: 0.5rem 1rem;
+              font-size: 0.9rem;
+              font-weight: 500;
+              transition: all 0.3s ease;
+              margin: 0.25rem;
+            }
+
+            .quick-btn:hover {
+              background: linear-gradient(135deg, #007bff, #0056b3);
+              color: white;
+              border-color: #007bff;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            }
+
+            .input-group {
+              border-radius: 25px;
+              overflow: hidden;
+              box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .form-control {
+              border: none;
+              padding: 1rem 1.5rem;
+              font-size: 1rem;
+              background: #f8f9fa;
+            }
+
+            .form-control:focus {
+              box-shadow: none;
+              background: white;
+              border: 1px solid #007bff;
+            }
+
+            .btn-primary {
+              background: linear-gradient(135deg, #007bff, #0056b3);
+              border: none;
+              padding: 1rem 2rem;
+              font-weight: 600;
+              transition: all 0.3s ease;
+              box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+            }
+
+            .btn-primary:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+              background: linear-gradient(135deg, #0056b3, #004085);
+            }
+
+            .welcome-message {
+              text-align: center;
+              padding: 2rem;
+              color: #6c757d;
+              font-style: italic;
+            }
+
+            .typing-indicator {
+              display: none;
+              padding: 1rem;
+              color: #6c757d;
+              font-style: italic;
+            }
+
+            .typing-indicator i {
+              animation: blink 1s infinite;
+            }
+
+            @keyframes blink {
+              0%, 50% { opacity: 1; }
+              51%, 100% { opacity: 0; }
+            }
+
+            .fade-in {
+              animation: fadeIn 0.6s ease-in-out;
+            }
+
+            @keyframes fadeIn {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+
+
+
+            .card:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .card-title {
+              font-size: 1rem;
+              margin-bottom: 0.25rem;
+              color: #2c3e50;
+              font-weight: 600;
+            }
+
+            .card-text {
+              font-size: 0.85rem;
+              margin-bottom: 0.5rem;
+              color: #6c757d;
+            }
+
+            .btn-outline-primary {
+              border-color: #007bff;
+              color: #007bff;
+              border-radius: 15px;
+              font-size: 0.8rem;
+              padding: 0.3rem 0.8rem;
+              transition: all 0.3s ease;
+            }
+
+            .btn-outline-primary:hover {
+              background: #007bff;
+              border-color: #007bff;
+              transform: translateY(-1px);
+            }
+
+            .chatbot-card-btn {
+              border: 2px solid #1976d2;
+              background: #fff;
+              color: #1976d2;
+              border-radius: 20px;
+              padding: 6px 16px;
+              font-size: 15px;
+              font-weight: 500;
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              margin-right: 8px;
+              cursor: pointer;
+              transition: background 0.2s, color 0.2s;
+            }
+            .chatbot-card-btn:last-child {
+              margin-right: 0;
+            }
+            .chatbot-card-btn:hover {
+              background: #1976d2;
+              color: #fff;
+            }
+
+            .card {
+              border: 1px solid #e9ecef;
+              border-radius: 12px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+              transition: all 0.3s ease;
+
+              width: 100%;
+              padding: 1.5rem 1rem;
+              display: flex;
+              align-items: stretch; /* stretch로 세로 공간 채움 */
+            }
+
+            .card img {
+              width: 100px;
+              height: 100px;
+              object-fit: cover;
+              border-radius: 6px;
+            }
+
+            .card-title {
+              font-size: 1.1rem;
+              font-weight: 600;
+              margin-bottom: 0.25rem;
+            }
+
+            .card-text {
+              font-size: 0.9rem;
+              color: #6c757d;
+              margin-bottom: 0;
+            }
+
+            .dept-card {
+              padding: 1.5rem 1rem;
+              display: flex;
+              align-items: stretch;
+            }
+
+            .dept-img-wrap {
+              width: 90px;
+              min-width: 90px;
+              height: 90px;
+              background: none;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .dept-img {
+              width: 70px;
+              height: 70px;
+              object-fit: contain;
+            }
+
+            .dept-title {
+              font-size: 1.0rem;
+              font-weight: 700;
+              color: #222;
+              display: flex;
+              align-items: center;
+              gap: 0.3em;
+            }
+
+            .dept-desc {
+              font-size: 0.95rem;
+              color: #6c757d;
+              margin-top: 0.2rem;
+            }
+
+            .doctor-name {
+              font-size: 1.1rem;
+              font-weight: 700;
+              color: #222;
+              margin-bottom: 0.2rem;
+            }
+            .doctor-dept {
+              font-size: 0.95rem;
+              color: #05be43;
+              font-weight: 500;
+            }
+
+            @media (max-width: 768px) {
+              .main-container {
+                margin: 1rem;
+                padding: 1.5rem;
+              }
+
+              .page-header h2 {
+                font-size: 2rem;
+              }
+
+
+              .chat-message {
+                max-width: 90%;
+                padding: 0.8rem;
+              }
+
+              .input-container {
+                padding: 1rem;
+              }
+
+              .quick-questions {
+                padding-bottom: 1rem;
+              }
+
+              .quick-btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+              }
+            }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container-fluid">
+    <div class="main-container fade-in">
+        <div class="page-header">
+            <h2><i class="fas fa-robot me-3"></i><span th:text="#{chatbot.title}"></span></h2>
+            <p class="subtitle" th:text="#{chatbot.subtitle}"></p>
+        </div>
+
+        <div class="chat-container">
+            <div id="chatbox">
+                <div class="welcome-message">
+                    <i class="fas fa-comments fa-2x mb-3"></i>
+                    <p th:utext="#{chatbot.welcome}"></p>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <i class="fas fa-circle"></i> <span th:text="#{chatbot.typing}">챗봇이 답변을 준비하고 있습니다...</span>
+            </div>
+
+            <div class="input-container">
+                <div class="quick-questions">
+                    <div class="section-title">
+                        <i class="fas fa-bolt me-2"></i><span th:text="#{chatbot.quick.title}">빠른 질문</span>
+                    </div>
+                    <div class="d-flex flex-wrap">
+                        <button class="btn quick-btn"
+                                th:data-msg="#{chatbot.quick.department}"
+                                onclick="sendPredefined(this)">
+                            <i class="fas fa-stethoscope me-1"></i>
+                            <span th:text="#{chatbot.quick.department}"></span>
+                        </button>
+
+                        <button class="btn quick-btn"
+                                th:data-msg="#{chatbot.quick.doctors}"
+                                onclick="sendPredefined(this)">
+                            <i class="fas fa-user-md me-1"></i>
+                            <span th:text="#{chatbot.quick.doctors}"></span>
+                        </button>
+
+                        <button class="btn quick-btn"
+                                th:data-msg="#{chatbot.quick.reservation}"
+                                onclick="sendPredefined(this)">
+                            <i class="fas fa-calendar-check me-1"></i>
+                            <span th:text="#{chatbot.quick.reservation}"></span>
+                        </button>
+
+                        <button class="btn quick-btn"
+                                th:data-msg="#{chatbot.quick.timetable}"
+                                onclick="sendPredefined(this)">
+                            <i class="fas fa-clock me-1"></i>
+                            <span th:text="#{chatbot.quick.timetable}"></span>
+                        </button>
+
+                        <button class="btn quick-btn"
+                                th:data-msg="#{chatbot.quick.pharmacy}"
+                                onclick="sendPredefined(this)">
+                            <i class="fas fa-pills me-1"></i>
+                            <span th:text="#{chatbot.quick.pharmacy}"></span>
+                        </button>
+
+                        <button class="btn quick-btn"
+                                th:data-msg="#{chatbot.quick.parking}"
+                                onclick="sendPredefined(this)">
+                            <i class="fas fa-parking me-1"></i>
+                            <span th:text="#{chatbot.quick.parking}"></span>
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="message" class="form-control" th:placeholder="#{chatbot.placeholder}">
+                    <button class="btn btn-primary" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane me-2"></i><span th:text="#{chatbot.send}">보내기</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script>
+    async function sendMessage() {
+      const input = document.getElementById("message");
+      const chatbox = document.getElementById("chatbox");
+      const typingIndicator = document.getElementById("typingIndicator");
+      const userMsg = input.value.trim();
+      if (!userMsg) return;
+
+      // 사용자 메시지 추가
+      const userDiv = document.createElement("div");
+      userDiv.className = "chat-message chat-user fade-in";
+      userDiv.innerHTML = `<span class="chat-label"><i class="fas fa-user me-2"></i>나</span><div>${userMsg}</div>`;
+      chatbox.appendChild(userDiv);
+
+      input.value = "";
+      chatbox.scrollTop = chatbox.scrollHeight;
+
+      // 타이핑 표시
+      typingIndicator.style.display = "block";
+      chatbox.scrollTop = chatbox.scrollHeight;
+
+      try {
+        const res = await fetch("http://localhost/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: { params: { value: userMsg } } })
+        });
+
+        const data = await res.json();
+        typingIndicator.style.display = "none";
+
+        const outputs = data.template.outputs;
+        outputs.forEach(output => {
+          if (output.simpleText) {
+            const botDiv = document.createElement("div");
+            botDiv.className = "chat-message chat-bot fade-in";
+            botDiv.innerHTML = `<span class="chat-label"><i class="fas fa-robot me-2"></i>챗봇</span><div>${output.simpleText.text.replace(/\n/g,'<br>')}</div>`;
+            chatbox.appendChild(botDiv);
+          } else if (output.carousel) {
+            const row = document.createElement("div");
+            row.className = "row row-cols-1 row-cols-md-2 g-3 mt-2 fade-in";
+            output.carousel.items.forEach(card => {
+              const col = document.createElement("div");
+              col.className = "col";
+              const imageUrl = card.thumbnail?.imageUrl || "https://via.placeholder.com/80x80?text=이미지";
+    col.innerHTML = `
+  <div class="card dept-card h-100 p-2">
+    <div class="d-flex w-100 align-items-center justify-content-between">
+
+      <!-- 왼쪽: 이미지 -->
+      <div class="dept-img-wrap">
+        <img src="${imageUrl}" alt="" class="dept-img">
+      </div>
+
+      <!-- 오른쪽: 이름 / 진료과 / 버튼 (오른쪽 정렬) -->
+      <div class="flex-grow-1 text-end ps-3">
+
+        <!-- 1. 의사 이름 -->
+        <div class="doctor-name mb-1">${card.title.split(' (')[0]}</div>
+
+        <!-- 2. 진료과명 -->
+        ${card.dept ? `<div class="doctor-dept mb-2">${card.dept}</div>` : ""}
+
+        <!-- 3. 버튼들 -->
+        <div class="d-flex justify-content-end gap-2 mt-2">
+          ${card.buttons ? card.buttons.map(btn =>
+            `<button class="btn btn-outline-primary btn-sm" data-msg="${btn.messageText}" onclick="sendPredefined(this)">
+              ${btn.label}
+            </button>`
+          ).join('') : ""}
+        </div>
+
+      </div>
+    </div>
+  </div>`;
+
+
+              row.appendChild(col);
+            });
+            chatbox.appendChild(row);
+          }
+        });
+        chatbox.scrollTop = chatbox.scrollHeight;
+      } catch (err) {
+        typingIndicator.style.display = "none";
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "chat-message chat-bot fade-in";
+        errorDiv.innerHTML = `<span class="chat-label"><i class="fas fa-robot me-2"></i>챗봇</span><div>죄송합니다. 일시적인 오류가 발생했습니다.</div>`;
+        chatbox.appendChild(errorDiv);
+      }
+    }
+
+    function sendPredefined(el) {
+      const msg = el.dataset.msg;
+      document.getElementById("message").value = msg;
+      sendMessage();
+    }
+
+    document.getElementById("message").addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+</script>
+</body>
+</html>

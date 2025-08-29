@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{department.add}">진료과 추가</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container py-5">
+  <h3 th:text="#{department.add}">진료과 추가</h3>
+
+  <form th:action="@{/departments/add}" method="post" class="mt-4">
+
+    <!-- ✅ 한글 진료과명 입력 -->
+    <div class="mb-3">
+      <label for="name" class="form-label" th:text="#{department.name.ko}">진료과명(한글)</label>
+      <input type="text" class="form-control" id="name" name="name" required onblur="autoTranslate()" th:placeholder="#{department.name.ko.placeholder}">
+    </div>
+
+    <!-- ✅ 숨겨진 영어 필드 (백엔드 저장용) -->
+    <input type="hidden" id="nameEn" name="nameEn">
+
+    <!-- ✅ 영어 번역 미리보기 + 수정 가능 -->
+    <div class="mb-3">
+      <label class="form-label" th:text="#{department.name.en.auto}">자동 번역된 진료과명(영문)</label>
+      <input type="text" class="form-control" id="nameEnPreview" oninput="syncHiddenEn()">
+      <small class="text-muted" th:text="#{department.name.en.editable}">자동 번역된 값은 직접 수정할 수 있습니다.</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">추가</button>
+  </form>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script>
+  // ✅ 한글 입력 후 자동 번역
+  function autoTranslate() {
+    const name = document.getElementById('name').value.trim();
+    if (!name) return;
+
+    fetch('/departments/api/translate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'text=' + encodeURIComponent(name)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        console.warn('번역 실패:', data.error);
+        document.getElementById('nameEn').value = '';
+        document.getElementById('nameEnPreview').value = '번역 실패';
+        return;
+      }
+      const translated = data.en || '';
+      // ✅ 자동 번역된 값 → 미리보기 + 숨김 필드에 모두 반영
+      document.getElementById('nameEn').value = translated;
+      document.getElementById('nameEnPreview').value = translated;
+    })
+    .catch(err => {
+      console.error('번역 API 호출 실패', err);
+      document.getElementById('nameEnPreview').value = '번역 실패';
+    });
+  }
+
+  // ✅ 미리보기 수정 시 숨김 필드도 동기화
+  function syncHiddenEn() {
+    document.getElementById('nameEn').value = document.getElementById('nameEnPreview').value;
+  }
+</script>
+
+</body>
+</html>

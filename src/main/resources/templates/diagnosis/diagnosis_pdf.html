@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body {
+      font-family: 'MalgunGothic', sans-serif;
+      font-size: 14px;
+      color: #333;
+      margin: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 26px;
+      margin-bottom: 40px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      border-bottom: 2px solid #333;
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .info-table td {
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .info-table .label {
+      width: 120px;
+      font-weight: bold;
+      background-color: #f1f1f1;
+    }
+
+    .value-box {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      min-height: 40px;
+      white-space: pre-wrap;
+    }
+
+    .signature {
+      text-align: right;
+      margin-top: 60px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 th:text="#{diagnosis.pdf.title}">진단서</h1>
+
+  <!-- 1. 환자 정보 -->
+  <div class="section">
+    <div class="section-title" th:text="#{diagnosis.pdf.section.patient}">1. 환자 정보</div>
+    <table class="info-table">
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.patient.name}">이름</td>
+        <td th:text="${user.name}"></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.patient.gender}">성별</td>
+        <td th:text="${user.gender == 'M' ? #messages.msg('diagnosis.pdf.patient.gender.male') : #messages.msg('diagnosis.pdf.patient.gender.female')}"></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.patient.birth}">생년월일</td>
+        <td th:text="${#temporals.format(user.birthDate, 'yyyy-MM-dd')}"></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.patient.address}">주소</td>
+        <td th:text="${user.address}"></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.patient.phone}">전화번호</td>
+        <td th:text="${user.phone}"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 2. 진단 정보 -->
+  <div class="section">
+    <div class="section-title" th:text="#{diagnosis.pdf.section.diagnosis}">2. 진단 내용</div>
+
+    <table class="info-table">
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.diagnosis}">진단명</td>
+        <td><div class="value-box" th:text="${diagnosis.diagnosis}"></div></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.treatment}">치료 방법</td>
+        <td><div class="value-box" th:text="${diagnosis.treatment}"></div></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.treatment.period}">치료 기간</td>
+        <td th:text="${diagnosis.treatmentPeriod}"></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.diagnosis.period}">진단 기간</td>
+        <td th:text="${diagnosis.diagnosisPeriod}"></td>
+      </tr>
+      <tr>
+        <td class="label" th:text="#{diagnosis.pdf.opinion}">의사의 소견</td>
+        <td><div class="value-box" th:text="${diagnosis.doctorOpinion}"></div></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

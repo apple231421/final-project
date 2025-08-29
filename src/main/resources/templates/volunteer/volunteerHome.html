@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{volunteer.home.title}">봉사활동 프로그램 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            padding-top: 70px;
+            background-color: #f8f9fa;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 3rem;
+            border-radius: 0 0 30px 30px;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .volunteer-add-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white !important;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .volunteer-add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            color: white !important;
+        }
+        
+        .volunteer-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: all 0.3s ease;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .volunteer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header-custom {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+        
+        .card-body-custom {
+            padding: 1.5rem;
+        }
+        
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+        
+        .status-RECRUITING {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-CLOSED {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .status-ONGOING {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .status-COMPLETED {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-detail {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            border: none;
+            color: white;
+            border-radius: 20px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-detail:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            color: white;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .search-input {
+            border-radius: 25px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+        }
+        
+        .btn-search {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            color: white;
+        }
+        
+        .pagination-custom .page-link {
+            border-radius: 10px;
+            margin: 0 0.2rem;
+            border: none;
+            color: #4facfe;
+            font-weight: 600;
+        }
+        
+        .pagination-custom .page-item.active .page-link {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-color: #4facfe;
+        }
+        
+        .pagination-custom .page-link:hover {
+            background-color: #e9ecef;
+        }
+        
+        .empty-state {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-image {
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .hero-image:hover {
+            transform: scale(1.02);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- 히어로 섹션 -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title" th:text="#{volunteer.home.title}">봉사활동 프로그램</h1>
+                    <p class="hero-subtitle" th:text="#{volunteer.home.subtitle}">함께 만들어가는 따뜻한 세상, 봉사활동에 참여해보세요</p>
+                    <a th:href="@{/volunteer/volunteerWrite}" sec:authorize="hasRole('A')"
+                       th:text="#{volunteer.home.add}" class="volunteer-add-btn">
+                        <i class="bi bi-plus-circle"></i>
+                        봉사활동 프로그램 추가
+                    </a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="/images/volunteer_img01.jpg" alt="봉사활동메인이미지" 
+                         class="hero-image" style="max-width: 100%; height: auto;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <!-- 검색 섹션 -->
+        <div class="search-section">
+            <h5 class="mb-3"><i class="bi bi-search me-2"></i><span th:text="#{volunteer.home.search}"></span></h5>
+            <form class="d-flex gap-3" method="get" th:action="@{/volunteer/volunteerHome}">
+                <div class="flex-grow-1">
+                    <input type="text" name="title" class="form-control search-input"
+                           th:value="${title}"
+                           th:placeholder="#{volunteer.home.search}">
+                </div>
+                <button class="btn btn-search" type="submit">
+                    <i class="bi bi-search me-2"></i>
+                    <span th:text="#{notice.list.searchButton}">검색</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- 빈 상태 메시지 -->
+        <div th:if="${volunteers.content.isEmpty()}" class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-heart"></i>
+            </div>
+            <h4 class="text-muted mb-3" th:text="#{volunteer.home.none}">신청가능한 봉사활동이 없습니다.</h4>
+            <p class="text-muted" th:text="#{volunteer.home.none2}">새로운 봉사활동 프로그램을 기다려주세요.</p>
+        </div>
+
+        <!-- 프로그램 목록 -->
+        <div class="row" th:if="${!volunteers.content.isEmpty()}">
+            <div class="col-lg-4 col-md-6 mb-4" th:each="volunteer : ${volunteers.content}">
+                <div class="volunteer-card">
+                    <div class="card-header-custom">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0" style="color: white;">
+                                <a th:href="@{/volunteer/volunteerDetail/{id}(id=${volunteer.volunteerId})}"
+                                   th:text="${volunteer.title}"
+                                   style="color: white; text-decoration: none; font-weight: 600;">
+                                    제목
+                                </a>
+                            </h5>
+                        </div>
+                        <span th:class="'status-badge status-' + ${volunteer.status}">
+                            <span th:switch="${volunteer.status}">
+                                <span th:case="'RECRUITING'" th:text="#{volunteer.status.RECRUITING}">모집중</span>
+                                <span th:case="'CLOSED'" th:text="#{volunteer.status.CLOSED}">모집완료</span>
+                                <span th:case="'ONGOING'" th:text="#{volunteer.status.ONGOING}">진행중</span>
+                                <span th:case="'COMPLETED'" th:text="#{volunteer.status.COMPLETED}">프로그램종료</span>
+                                <span th:text="#{'volunteer.status.' + ${volunteer.status}}">상태</span>
+                            </span>
+                        </span>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted">
+                                <i class="bi bi-people me-1"></i>
+                                <span th:text="#{volunteer.home.applyCount}"></span>
+                            </small>
+                            <span class="fw-bold text-primary">
+                                <span th:text="${volunteer.applyCount}">0</span> / <span th:text="${volunteer.maxApplyCount}">0</span>
+                            </span>
+                        </div>
+                        <a th:href="@{/volunteer/volunteerDetail/{id}(id=${volunteer.volunteerId})}" 
+                           class="btn btn-detail w-100">
+                            <i class="bi bi-arrow-right me-2"></i>
+                            <span th:text="#{volunteer.home.detail}">자세히 보기</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <nav th:if="${volunteers.totalPages > 0}" class="mt-5">
+            <ul class="pagination pagination-custom justify-content-center">
+                <li class="page-item" th:classappend="${volunteers.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/volunteer/volunteerHome(page=${volunteers.number - 1}, title=${title})}"
+                       th:text="#{volunteer.home.prev}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, volunteers.totalPages - 1)}"
+                    th:classappend="${volunteers.number == i} ? 'active'">
+                    <a class="page-link" th:href="@{/volunteer/volunteerHome(page=${i}, title=${title})}" 
+                       th:text="${i + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${volunteers.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/volunteer/volunteerHome(page=${volunteers.number + 1}, title=${title})}"
+                       th:text="#{volunteer.home.next}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

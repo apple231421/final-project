@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+    :root {
+      --hospital-primary: #2563eb;
+      --hospital-secondary: #1e40af;
+      --hospital-accent: #3b82f6;
+      --hospital-success: #059669;
+      --hospital-danger: #dc2626;
+      --hospital-warning: #d97706;
+      --hospital-info: #0891b2;
+      --hospital-light: #f8fafc;
+      --hospital-dark: #1e293b;
+      --hospital-gray: #64748b;
+      --hospital-border: #e2e8f0;
+      --hospital-shadow: rgba(0, 0, 0, 0.1);
+      --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+    }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--hospital-light);
+      color: var(--hospital-dark);
+      margin: 0;
+    }
+    .container {
+      margin: 120px auto;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 800;
+      color: var(--hospital-primary);
+      font-size: 2rem;
+      letter-spacing: -1px;
+    }
+    table.table {
+      font-size: 1rem;
+      background-color: #fff;
+      border-collapse: collapse;
+      border-top: 2.5px solid var(--hospital-primary);
+      box-shadow: 0 4px 20px var(--hospital-shadow);
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+    }
+    table.table th, table.table td {
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1.5px solid var(--hospital-border);
+      padding: 14px 8px;
+    }
+    table.table thead th {
+      background: linear-gradient(135deg, var(--hospital-primary) 60%, var(--hospital-accent) 100%);
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 2px solid var(--hospital-primary);
+    }
+    table.table tbody tr:hover {
+      background-color: #e8f0fe;
+    }
+    table.table td a {
+      color: var(--hospital-dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    table.table td a:hover {
+      color: var(--hospital-primary);
+      text-decoration: underline;
+    }
+    .btn, .btn-primary {
+      background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+    }
+    .btn:hover, .btn-primary:hover {
+      background: linear-gradient(135deg, var(--hospital-accent), var(--hospital-primary));
+      color: #fff;
+      box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+    }
+    .btn-outline-secondary {
+      background: #fff;
+      color: var(--hospital-primary);
+      border: 1.5px solid var(--hospital-primary);
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-outline-secondary:hover {
+      background: var(--hospital-primary);
+      color: #fff;
+    }
+    .pagination .page-item.active .page-link {
+      background: var(--hospital-primary);
+      border-color: var(--hospital-primary);
+      color: #fff;
+    }
+    .pagination .page-item.disabled .page-link {
+      color: #ccc;
+      pointer-events: none;
+      background-color: #f8f9fa;
+    }
+    .text-end {
+      margin-top: 20px;
+    }
+    @media (max-width: 991.98px) {
+      .container {
+        margin: 60px 0 0 0;
+        padding: 0 8px;
+      }
+      table.table th, table.table td {
+        padding: 8px 2px;
+        font-size: 0.95rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container mt-5">
+    <h2>삭제된 언론보도</h2>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>번호</th>
+            <th>보도기관</th>
+            <th>기사제목</th>
+            <th>보도일자</th>
+            <th>복구</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="press, stat : ${pressPage.content}">
+            <td th:text="${pressPage.totalElements - (pressPage.number * pressPage.size + stat.index)}"></td>
+            <td th:text="${press.mediaName}"></td>
+            <td><a th:href="${press.link}" th:text="${press.title}" target="_blank"></a></td>
+            <td th:text="${#temporals.format(press.publishedDate, 'yyyy-MM-dd')}"></td>
+            <td>
+                <form th:action="@{/board/press/restore/{id}(id=${press.id})}" method="post" style="display:inline;">
+                    <button class="btn btn-secondary btn-sm" onclick="return confirm('복구하시겠습니까?')">복구</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${pressPage.content.isEmpty()}">
+            <td colspan="5">삭제된 보도자료가 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- ✅ 페이징 네비게이션 -->
+    <nav th:if="${pressPage.totalPages > 1}" aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${pressPage.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/board/press/trash(page=${pressPage.number == 0 ? 0 : pressPage.number - 1})}">이전</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(1, pressPage.totalPages)}"
+                class="page-item"
+                th:classappend="${i == pressPage.number + 1} ? 'active'">
+                <a class="page-link" th:href="@{/board/press/trash(page=${i - 1})}" th:text="${i}"></a>
+            </li>
+            <li class="page-item" th:classappend="${pressPage.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/board/press/trash(page=${pressPage.number + 1})}">다음</a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

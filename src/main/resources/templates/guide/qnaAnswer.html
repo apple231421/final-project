@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{qna.answer.title}">접수된 1:1 문의 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            margin-top: 200px;
+            background: #f7fafd;
+        }
+        .qna-list-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .qna-list-title {
+            font-weight: 700;
+            color: #1976d2;
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+        }
+        .nav-tabs .nav-link {
+            color: #1976d2;
+            font-weight: 500;
+            border-radius: 1.5rem 1.5rem 0 0;
+            background: #f0f6fb;
+            margin-right: 4px;
+            border: none;
+        }
+        .nav-tabs .nav-link.active {
+            background: #fff;
+            color: #1976d2;
+            border-bottom: 2px solid #1976d2;
+            font-weight: 700;
+        }
+        .qna-list-group {
+            background: #fff;
+            border-radius: 1.2rem;
+            box-shadow: 0 2px 16px rgba(25, 118, 210, 0.07);
+            padding: 0.5rem 0.5rem;
+        }
+        .qna-list-item {
+            border: none;
+            border-radius: 1rem !important;
+            margin-bottom: 0.7rem;
+            background: #fafdff;
+            box-shadow: 0 1px 6px rgba(25, 118, 210, 0.04);
+            padding: 1.1rem 1.2rem;
+        }
+        .qna-list-item .fw-bold {
+            color: #1976d2;
+            font-size: 1.08rem;
+        }
+        .qna-list-badge {
+            border-radius: 1rem;
+            font-size: 0.98rem;
+            font-weight: 600;
+            padding: 0.3rem 1.1rem;
+        }
+        @media (max-width: 600px) {
+            .qna-list-container { padding: 0 0.5rem; }
+            .qna-list-title { font-size: 1.2rem; }
+            .qna-list-item { font-size: 0.97rem; padding: 0.8rem 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <div class="container mt-5 mb-5 qna-list-container">
+        <h2 class="qna-list-title" th:text="#{qna.answer.title}">접수된 1:1 문의 목록</h2>
+        <!-- 분류 탭 -->
+        <ul class="nav nav-tabs mb-3 d-flex" id="faqTabs">
+            <li class="nav-item flex-fill"><button type="button" class="nav-link w-100" th:classappend="${currentCategory == 'all'} ? 'active'" onclick="goToCategory('all')"
+                                         th:text="#{qna.answer.category.all}">전체</button></li>
+            <li class="nav-item flex-fill"><button type="button" class="nav-link w-100" th:classappend="${currentCategory == '병원이용안내'} ? 'active'" onclick="goToCategory('병원이용안내')"
+                                         th:text="#{qna.answer.category.hospital.guide}">병원이용안내</button></li>
+            <li class="nav-item flex-fill"><button type="button" class="nav-link w-100" th:classappend="${currentCategory == '증명서발급'} ? 'active'" onclick="goToCategory('증명서발급')"
+                                         th:text="#{qna.answer.category.certificate}">증명서발급</button></li>
+            <li class="nav-item flex-fill"><button type="button" class="nav-link w-100" th:classappend="${currentCategory == '홈페이지이용'} ? 'active'" onclick="goToCategory('홈페이지이용')"
+                                         th:text="#{qna.answer.category.website}">홈페이지이용</button></li>
+            <li class="nav-item flex-fill"><button type="button" class="nav-link w-100" th:classappend="${currentCategory == '기타'} ? 'active'" onclick="goToCategory('기타')"
+                                         th:text="#{qna.answer.category.etc}">기타</button></li>
+        </ul>
+        <!-- 접수된 문의 목록 -->
+        <ul class="list-group mt-3 qna-list-group">
+            <li class="list-group-item qna-list-item" th:each="qna : ${qnaList}">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <a th:href="@{/guide/qnaAnswerDetail/{qnaId}(qnaId=${qna.qnaId})}" class="fw-bold text-decoration-none">
+                            <span th:text="${qna.title}">제목</span>
+                        </a>
+                        <div class="text-muted small mt-1">
+                            <span th:switch="${qna.qnaCategory}">
+                                <span th:case="'병원이용안내'" th:text="#{faq.category.hospital.guide}">병원이용안내</span>
+                                <span th:case="'증명서발급'" th:text="#{faq.category.certificate}">증명서발급</span>
+                                <span th:case="'홈페이지이용'" th:text="#{faq.category.website}">홈페이지이용</span>
+                                <span th:case="'기타'" th:text="#{faq.category.etc}">기타</span>
+                                <span th:case="*" th:text="${qna.qnaCategory}">기타</span>
+                            </span>
+                            &nbsp;|&nbsp;
+                            <span th:text="#{qna.answer.createdAt} + ' ' + ${#temporals.format(qna.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</span>
+                            &nbsp;|&nbsp;
+                            <span th:text="#{qna.answer.detail.username}">작성자:</span>
+                            <span th:text="${qna.user.name}">작성자</span>
+                        </div>
+                    </div>
+                    <span class="qna-list-badge badge rounded-pill"
+                          th:classappend="${qna.isAnswered} ? 'bg-success' : 'bg-secondary'"
+                          th:text="${qna.isAnswered} ? #{qna.answer.answered} : #{qna.answer.notAnswered}">상태</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+<!-- qnaAnswer 카테고리 필터 스크립트 -->
+<script>
+    // 카테고리 필터링 버튼 스크립트
+        function goToCategory(category) {
+            const url = `/guide/qnaAnswer?category=` + encodeURIComponent(category) + `&page=0`;
+            window.location.href = url;
+        }
+</script>
+</html>

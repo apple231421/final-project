@@ -1,0 +1,317 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<div th:fragment="header">
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .bg-white {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--hospital-primary) !important;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .header-logo img {
+            height: 48px;
+            max-width: 200px;
+            width: auto;
+        }
+
+        .fw-bold.text-danger {
+            background: linear-gradient(135deg, var(--hospital-danger), #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .fw-bold.text-danger:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        .text-dark {
+            color: var(--hospital-dark) !important;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none !important;
+        }
+
+        .text-dark:hover {
+            color: var(--hospital-primary) !important;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.1));
+            transform: translateY(-1px);
+        }
+
+        .navbar-nav .nav-link {
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none !important;
+            padding: 0.75rem 1rem;
+        }
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .show > .nav-link {
+            color: var(--hospital-primary) !important;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.1));
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .dropdown-menu {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 1rem 0.5rem;
+        }
+
+        .dropdown-item {
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: var(--hospital-dark);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            position: relative;
+            overflow: hidden;
+            padding: 0.75rem 1rem;
+        }
+
+        .dropdown-item:hover {
+            color: white;
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            transform: translateX(8px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        @media (max-width: 999.98px) {
+            .navbar-nav .nav-link {
+                font-size: 1rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .dropdown-menu {
+                box-shadow: none;
+                background: var(--hospital-light);
+                margin-top: 0.5rem;
+                border-radius: 8px;
+            }
+
+            .header-logo img {
+                height: 28px;
+                max-width: 90px;
+            }
+        }
+
+        .navbar-nav {
+            gap: 0.5rem !important;
+        }
+
+        .d-flex.align-items-center.ms-lg-4 {
+            min-width: unset;
+            justify-content: flex-end;
+        }
+    </style>
+
+    <header class="bg-white shadow-sm border-bottom fixed-top">
+        <nav class="navbar navbar-expand-lg bg-white">
+            <div class="container-fluid">
+                <!-- 로고 -->
+                <a href="/">
+                    <img th:src="${#locale.language == 'en' ? '/images/로고누끼영어.png' : '/images/로고누끼한국어.png'}"
+                         alt="로고"
+                         style="height: 80px; max-width: 200px; width: auto;">
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- 메뉴 -->
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4">
+                        <!-- 병원소개 -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link fw-semibold text-dark dropdown-toggle" href="#" id="introDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               th:text="#{header.menu.intro}">병원소개</a>
+                            <ul class="dropdown-menu" aria-labelledby="introDropdown">
+                                <li><a class="dropdown-item" th:href="@{/about/greeting}" th:text="#{header.menu.greeting}">병원장 인사말</a></li>
+                                <li><a class="dropdown-item" th:href="@{/about/org}" th:text="#{header.menu.org}">조직도</a></li>
+                                <li><a class="dropdown-item" th:href="@{/about/history}" th:text="#{header.menu.history}">연혁</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- 진료과/의료진 -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link fw-semibold text-dark dropdown-toggle" href="#" id="deptDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               th:text="#{header.menu.department}">진료과/의료진</a>
+                            <ul class="dropdown-menu" aria-labelledby="deptDropdown">
+                                <li>
+                                    <a class="dropdown-item"
+                                       th:href="@{/doctors(department=${#locale.language == 'en' ? 'Internal Medicine' : '내과'})}"
+                                       th:text="#{header.menu.internal}">내과</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                       th:href="@{/doctors(department=${#locale.language == 'en' ? 'Surgical' : '외과'})}"
+                                       th:text="#{header.menu.Surgical}">외과</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                       th:href="@{/doctors(department=${#locale.language == 'en' ? 'Pediatrics' : '소아청소년과'})}"
+                                       th:text="#{header.menu.pediatrics}">소아청소년과</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                       th:href="@{/doctors(department=${#locale.language == 'en' ? 'Orthopedics' : '정형외과'})}"
+                                       th:text="#{header.menu.ortho}">정형외과</a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" th:href="@{/doctors}" th:text="#{header.menu.doctor.all}">전체 의료진</a></li>
+                                <li><a class="dropdown-item" th:href="@{/doctors/Search}" th:text="#{header.menu.doctor.search}">전문의 검색</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- 예약/발급 -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link fw-semibold text-dark dropdown-toggle" href="#" id="resvDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               th:text="#{header.menu.reservation}">예약/발급</a>
+
+                            <ul class="dropdown-menu" aria-labelledby="resvDropdown">
+
+                                <!-- ✅ 관리자(A)가 아닐 때만 예약 메뉴 표시 (로그인 안 한 경우도 포함) -->
+                                <li th:if="${currentUser == null or !currentUser.role.toString().equals('A')}">
+                                    <a class="dropdown-item" th:href="@{/reservation}"
+                                       th:text="#{header.menu.reservation.first}">첫 방문</a>
+                                </li>
+
+                                <li th:if="${currentUser == null or !currentUser.role.toString().equals('A')}">
+                                    <a class="dropdown-item" th:href="@{/reservation/my}"
+                                       th:text="#{header.menu.reservation.my}">나의 예약</a>
+                                </li>
+
+                                <li th:if="${currentUser == null or !currentUser.role.toString().equals('A')}">
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" th:href="@{/diagnosis/list}"
+                                       th:text="#{header.menu.certificate.issue}">진단서 발급</a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+
+
+                        <!-- 이용안내 -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link fw-semibold text-dark dropdown-toggle" href="#" id="guideDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               th:text="#{header.menu.guide}">이용안내</a>
+                            <ul class="dropdown-menu" aria-labelledby="guideDropdown">
+                                <li><a class="dropdown-item" th:href="@{/guide/visit}" th:text="#{header.menu.visit.way}">오시는 길</a></li>
+                                <li><a class="dropdown-item" th:href="@{/guide/parking}" th:text="#{header.menu.visit.parking}">주차안내</a></li>
+                                <li><a class="dropdown-item" th:href="@{/guide/room}" th:text="#{header.menu.visit.room}">병실안내</a></li>
+                                <li><a class="dropdown-item" th:href="@{/guide/pharmacy_map}" th:text="#{header.menu.visit.pharmacy}">주변 약국 안내</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" th:href="@{/guide/faq}" th:text="#{header.menu.faq}">FAQ</a></li>
+                                <li><a class="dropdown-item" th:href="@{/guide/consult}" th:text="#{header.menu.voice}">고객의 소리</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- 병원소식 -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link fw-semibold text-dark dropdown-toggle" href="#" id="aboutDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               th:text="#{header.menu.activity}">병원소식</a>
+                            <ul class="dropdown-menu" aria-labelledby="introDropdown">
+                                <li><a class="dropdown-item" th:href="@{/board/notice}" th:text="#{header.menu.notice}">공지사항</a></li>
+                                <li><a class="dropdown-item" th:href="@{/board/news}" th:text="#{header.menu.newsitem}">뉴스</a></li>
+                                <li><a class="dropdown-item" th:href="@{/board/press}" th:text="#{header.menu.press}">언론보도</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" th:href="@{/volunteer/volunteerHome}" th:text="#{header.menu.volunteer}">자원봉사</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <!-- 우측 메뉴 -->
+                    <div class="d-flex align-items-center justify-content-end" style="min-width:320px; gap:0.5rem;">
+                        <div th:if="${currentUser != null}" class="d-flex align-items-center gap-2">
+                            <span th:text="#{header.menu.welcome(${currentUser.name})}" class="text-dark" style="white-space:nowrap;"></span>
+                            <a th:href="@{/logout}" class="text-dark" th:text="#{header.menu.logout}" style="white-space:nowrap;">로그아웃</a>
+                            <a th:href="@{/myPage}" class="text-dark" th:text="#{header.menu.mypage}" style="white-space:nowrap;">마이페이지</a>
+                        </div>
+                        <div th:unless="${currentUser != null}" class="d-flex align-items-center gap-2">
+                            <a th:href="@{/login}" class="text-dark" th:text="#{header.menu.login}" style="white-space:nowrap;">로그인</a>
+                            <a th:href="@{/signup}" class="text-dark" th:text="#{header.menu.signup}" style="white-space:nowrap;">회원가입</a>
+                            <a th:href="@{/myPage}" class="text-dark" th:text="#{header.menu.mypage}" style="white-space:nowrap;">마이페이지</a>
+                        </div>
+
+                        <!-- 언어 변경 드롭다운 -->
+                        <div class="dropdown" data-bs-display="static" style="margin-left: 0.5rem;">
+                            <button class="btn btn-light border-0" type="button" id="langDropdown"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false" title="Change Language" style="white-space:nowrap;">
+                                <i class="bi bi-globe"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="changeLang(event, 'ko')" style="white-space:nowrap;">KOR</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="changeLang(event, 'en')" style="white-space:nowrap;">ENG</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        // 언어 변경 함수
+        function changeLang(event, lang) {
+            event.preventDefault();
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+        }
+    </script>
+</div>

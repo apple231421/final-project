@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head>
+  <meta charset="utf-8">
+  <title>전국 약국 지도</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    :root {
+      --hospital-primary: #2563eb;
+      --hospital-secondary: #1e40af;
+      --hospital-accent: #3b82f6;
+      --hospital-success: #059669;
+      --hospital-danger: #dc2626;
+      --hospital-warning: #d97706;
+      --hospital-info: #0891b2;
+      --hospital-light: #f8fafc;
+      --hospital-dark: #1e293b;
+      --hospital-gray: #64748b;
+      --hospital-border: #e2e8f0;
+      --hospital-shadow: rgba(0, 0, 0, 0.1);
+      --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--hospital-light);
+      margin: 0;
+    }
+
+    .container {
+      margin: 120px auto;
+    }
+
+    h1.text-center.fw-bold {
+            color: var(--hospital-primary);
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+        }
+
+    #map {
+      width: 100%;
+      height: 600px;
+      border: 1.5px solid var(--hospital-primary);
+      border-radius: 14px;
+      box-shadow: 0 4px 20px var(--hospital-shadow);
+    }
+
+    .kakao-link {
+      margin-top: 5px;
+      display: inline-block;
+      color: var(--hospital-primary);
+      text-decoration: underline;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .kakao-link:hover {
+      color: var(--hospital-accent);
+    }
+
+    .infowindow-content {
+      font-size: 1rem;
+      padding: 6px 2px;
+      color: var(--hospital-dark);
+      font-weight: 500;
+    }
+
+    /* 카드/패널 스타일 (예시로 추가) */
+    .pharmacy-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+      border: 1px solid var(--hospital-border);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: box-shadow 0.2s;
+    }
+    .pharmacy-card:hover {
+      box-shadow: 0 8px 32px var(--hospital-shadow-lg);
+    }
+
+    /* 버튼 스타일 (예시로 추가) */
+    .btn-hospital {
+      background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+    }
+    .btn-hospital:hover {
+      background: linear-gradient(135deg, var(--hospital-accent), var(--hospital-primary));
+      color: #fff;
+      box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 991.98px) {
+      .container {
+        margin: 60px 0 0 0;
+        padding: 0 8px;
+      }
+      #map {
+        height: 350px;
+      }
+    }
+  </style>
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=a75b3ebaf9ca88626fb36010800557aa"></script>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+  <h1 class="text-center fw-bold" th:text="#{pharmacy.title}">전국 약국 지도</h1>
+  <div id="map"></div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script th:inline="javascript">
+  const pharmacies = JSON.parse([[${pharmaciesJson}]]);  // ✅ 배열로 변환됨
+
+  const mapContainer = document.getElementById('map');
+  const mapOption = {
+    center: new kakao.maps.LatLng(37.485912, 126.897336),
+    level: 3
+  };
+  const map = new kakao.maps.Map(mapContainer, mapOption);
+
+  const baseMarkerImage = new kakao.maps.MarkerImage(
+          '/images/hospital-marker.png',
+          new kakao.maps.Size(40, 40),
+          { offset: new kakao.maps.Point(20, 40) }
+  );
+
+  // 지도 생성 후 바로 아래에 추가하세요
+  const baseLat = 37.485912;
+  const baseLon = 126.897336;
+
+  const baseMarker = new kakao.maps.Marker({
+    map: map,
+    position: new kakao.maps.LatLng(baseLat, baseLon),
+    image: baseMarkerImage,
+    title: '기준 위치'
+  });
+
+
+  const customMarkerImage = new kakao.maps.MarkerImage(
+          '/images/medicine_blinking.gif',
+          new kakao.maps.Size(40, 42),
+          { offset: new kakao.maps.Point(20, 42) }
+  );
+
+  let openInfoWindow = null;
+
+  pharmacies.forEach(p => {
+    if (p.wgs84lat && p.wgs84lon) {
+      const lat = parseFloat(p.wgs84lat);
+      const lon = parseFloat(p.wgs84lon);
+
+      const marker = new kakao.maps.Marker({
+        map: map,
+        position: new kakao.maps.LatLng(lat, lon),
+        image: customMarkerImage
+      });
+      const lang = document.documentElement.lang || 'ko';
+      const linkText = (lang === 'en') ? 'Get directions with Kakao Map' : '카카오맵 길찾기';
+      const mapUrl = `https://map.kakao.com/link/to/${encodeURIComponent(p.dutyname)},${lat},${lon}`;
+      console.log('linkText:', linkText);
+      const infowindow = new kakao.maps.InfoWindow({
+        content: `
+          <div class="infowindow-content">
+            <strong>${p.dutyname}</strong><br>
+            ${p.dutytel1}<br>
+            <a class="kakao-link" href="${mapUrl}" target="_blank">${linkText}</a>
+          </div>
+        `
+      });
+
+      // 🔻 클릭 시 열고 기존 인포윈도우 닫기
+      kakao.maps.event.addListener(marker, 'click', function () {
+        if (openInfoWindow) openInfoWindow.close();
+        infowindow.open(map, marker);
+        openInfoWindow = infowindow;
+      });
+    }
+  });
+
+  // 🔻 지도 클릭하면 인포윈도우 닫기
+  kakao.maps.event.addListener(map, 'click', function () {
+    if (openInfoWindow) openInfoWindow.close();
+  });
+</script>
+
+</body>
+</html>

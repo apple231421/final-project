@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{reservation.complete.title}">예약 완료</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+          background: #f8f9fa;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          color: #333;
+        }
+
+        .complete-container {
+          max-width: 700px;
+          margin: 80px auto;
+          background: white;
+          padding: 3rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .complete-container::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+
+        .success-icon {
+          width: 80px;
+          height: 80px;
+          background: linear-gradient(135deg, #27ae60, #2ecc71);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 2rem;
+          color: white;
+          font-size: 2rem;
+          box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+          }
+          100% {
+            transform: scale(1);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+          }
+        }
+
+        .complete-title {
+          color: #2c3e50;
+          font-size: 1.8rem;
+          font-weight: 600;
+          margin-bottom: 2rem;
+          position: relative;
+        }
+
+        .complete-title::after {
+          content: '';
+          position: absolute;
+          bottom: -10px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 60px;
+          height: 3px;
+          background: #3498db;
+          border-radius: 2px;
+        }
+
+        .doctor-photo {
+          width: 180px;
+          height: 220px;
+          object-fit: cover;
+          border-radius: 12px;
+          border: 4px solid #3498db;
+          box-shadow: 0 8px 25px rgba(52, 152, 219, 0.2);
+          margin: 2rem auto;
+          display: block;
+        }
+
+        .reservation-info {
+          background: #f8f9fa;
+          border-radius: 12px;
+          padding: 2rem;
+          margin: 2rem 0;
+          border-left: 4px solid #3498db;
+          text-align: left;
+        }
+
+        .info-row {
+          display: flex;
+          align-items: center;
+          margin-bottom: 1rem;
+          padding: 0.5rem 0;
+        }
+
+        .info-row:last-child {
+          margin-bottom: 0;
+        }
+
+        .info-icon {
+          width: 40px;
+          height: 40px;
+          background: #3498db;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          margin-right: 1rem;
+          font-size: 1rem;
+        }
+
+        .info-content {
+          flex: 1;
+        }
+
+        .info-label {
+          font-size: 0.9rem;
+          color: #6c757d;
+          font-weight: 500;
+        }
+
+        .info-value {
+          font-size: 1.1rem;
+          color: #2c3e50;
+          font-weight: 600;
+          margin-top: 0.2rem;
+        }
+
+        .complete-message {
+          color: #495057;
+          font-size: 1.1rem;
+          line-height: 1.6;
+          margin: 2rem 0;
+          padding: 1.5rem;
+          background: #e8f4fd;
+          border-radius: 8px;
+          border-left: 4px solid #3498db;
+        }
+
+        .btn {
+          border-radius: 8px;
+          padding: 0.75rem 2rem;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          margin: 0.5rem;
+        }
+
+        .btn-primary {
+          background: #3498db;
+          border-color: #3498db;
+          color: white;
+        }
+
+        .btn-primary:hover {
+          background: #2980b9;
+          border-color: #2980b9;
+          color: white;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-outline-secondary {
+          background: white;
+          border-color: #6c757d;
+          color: #6c757d;
+        }
+
+        .btn-outline-secondary:hover {
+          background: #6c757d;
+          border-color: #6c757d;
+          color: white;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .notice-box {
+          background: #fff3cd;
+          border: 1px solid #ffeaa7;
+          border-radius: 8px;
+          padding: 1rem;
+          margin: 2rem 0;
+          text-align: left;
+        }
+
+        .notice-box h6 {
+          color: #856404;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+        }
+
+        .notice-box ul {
+          margin-bottom: 0;
+          color: #856404;
+          font-size: 0.9rem;
+        }
+
+        .notice-box li {
+          margin-bottom: 0.3rem;
+        }
+
+        @media (max-width: 768px) {
+          .complete-container {
+            margin: 40px auto;
+            padding: 2rem;
+          }
+
+          .doctor-photo {
+            width: 150px;
+            height: 180px;
+          }
+
+          .reservation-info {
+            padding: 1.5rem;
+          }
+
+          .info-row {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .info-icon {
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+          }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="complete-container">
+    <div class="success-icon">
+        <i class="fas fa-check"></i>
+    </div>
+
+    <h3 class="complete-title">
+        <i class="fas fa-calendar-check me-2"></i><span th:text="#{reservation.complete.success}">진료 예약이 완료되었습니다!</span>
+    </h3>
+
+    <img id="doctorImage" src="/images/default-doctor.jpg" alt="의사 사진" class="doctor-photo">
+
+    <div class="reservation-info">
+        <div class="info-row">
+            <div class="info-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label" th:text="#{reservation.complete.patient}">예약자</div>
+                <div class="info-value" th:text="${displayPatientName}">-</div>
+            </div>
+        </div>
+        <div class="info-row">
+            <div class="info-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label" th:text="#{reservation.complete.datetime}">예약일시</div>
+                <!-- ✅ Controller에서 완성된 문자열만 출력 -->
+                <div class="info-value" th:text="${formattedDateTime}">-</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-icon">
+                <i class="fas fa-hospital"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label" th:text="#{reservation.complete.department}">진료과</div>
+                <!-- ✅ 컨트롤러에서 Locale 맞춘 값 출력 -->
+                <div class="info-value" th:text="${department}">-</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-icon">
+                <i class="fas fa-user-md"></i>
+            </div>
+            <div class="info-content">
+                <div class="info-label" th:text="#{reservation.complete.doctor}">담당의</div>
+                <!-- ✅ 컨트롤러에서 로케일에 맞게 완성된 값 -->
+                <div class="info-value" th:text="${doctorDisplayName}">-</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="complete-message" id="completeMessage" th:text="#{reservation.complete.loading}">
+        예약 정보를 불러오는 중입니다...
+    </div>
+
+    <div class="notice-box">
+        <h6><i class="fas fa-info-circle me-2"></i><span th:text="#{reservation.complete.notice.title}">예약 확인 안내</span>
+        </h6>
+        <ul>
+            <li th:text="#{reservation.complete.notice.sms}">예약일 1일 전에 문자로 재확인 안내를 드립니다.</li>
+            <li th:text="#{reservation.complete.notice.arrival}">진료 30분 전에 내원해 주시기 바랍니다.</li>
+            <li th:text="#{reservation.complete.notice.edit}">예약 변경은 마이페이지에서 가능합니다.</li>
+        </ul>
+    </div>
+
+    <div class="mt-4">
+        <a href="/" class="btn btn-primary">
+            <i class="fas fa-home me-2"></i><span th:text="#{reservation.complete.home}">홈으로</span>
+        </a>
+        <a href="/reservation/my" class="btn btn-outline-secondary">
+            <i class="fas fa-calendar-check me-2"></i><span th:text="#{reservation.complete.my}">내 예약 보기</span>
+        </a>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script th:inline="javascript">
+    var msg_complete = [[#{reservation.complete.js.success}]];
+    var msg_confirm = [[#{reservation.complete.js.confirm}]];
+
+    // ✅ 서버에서 완성된 이름 그대로 받기
+    const displayName = /*[[${displayPatientName}]]*/ '고객님';
+
+    // ✅ doctorImage도 서버 값으로 받아오기
+    const doctorImage = /*[[${doctorImage != null ? doctorImage : '/images/default-doctor.jpg'}]]*/ '/images/default-doctor.jpg';
+    document.getElementById('doctorImage').src = doctorImage;
+
+    // ✅ 완료 메시지 설정
+    document.getElementById('completeMessage').innerHTML =
+        '<i class="fas fa-check-circle me-2"></i>' +
+        `<strong>${displayName}</strong>, ` + msg_complete + '<br>' +
+        msg_confirm;
+</script>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

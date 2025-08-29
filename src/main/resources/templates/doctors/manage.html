@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{doctors.manage.title}">의료진 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container flex-grow-1" style="margin-top: 150px;">
+  <h3 class="mb-4 text-center" th:text="#{doctors.manage.title}">의료진 관리</h3>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center">
+      <thead class="table-primary">
+      <tr>
+        <th th:text="#{name}">이름</th>
+        <th th:text="#{email}">이메일</th>
+        <th th:text="#{phone}">전화번호</th>
+        <th th:text="#{department}">진료과</th>
+        <th th:text="#{delete}">삭제</th>
+        <th th:text="#{edit}">수정</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="doctor : ${doctors}">
+        <td th:text="${doctor.name}">홍길동</td>
+        <td th:text="${doctor.email}">doctor@example.com</td>
+        <td th:text="${doctor.phone}">010-1234-5678</td>
+        <td th:text="${lang == 'en' ? doctor.department.nameEn : doctor.department.name}">내과</td>
+        <td>
+          <form th:action="@{/doctors/delete/{id}(id=${doctor.id})}" method="post"
+                th:onsubmit="|return confirm('#{doctors.manage.delete.confirm}');|">
+            <input type="hidden" name="_method" value="delete" />
+            <button type="submit" class="btn btn-sm btn-danger" th:text="#{delete}">삭제</button>
+          </form>
+        </td>
+        <td>
+          <button type="button" class="btn btn-sm btn-primary" style="white-space:nowrap;" data-bs-toggle="modal" data-bs-target="#editDoctorModal"
+                  th:attr="data-id=${doctor.id},data-name=${doctor.name},data-position=${doctor.position},data-description=${doctor.description},data-descriptionen=${doctor.descriptionEn}">
+            <span th:text="#{doctors.manage.edit}">수정</span>
+          </button>
+        </td>
+      </tr>
+      <tr th:if="${doctors.size() == 0}">
+        <td colspan="5" class="text-muted" th:text="#{doctors.manage.empty}">등록된 의료진이 없습니다.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+<!-- 수정 모달 -->
+<div class="modal fade" id="editDoctorModal" tabindex="-1" aria-labelledby="editDoctorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editDoctorModalLabel" th:text="#{doctors.manage.edit.title}">의료진 정보 수정</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editDoctorForm">
+          <input type="hidden" id="editDoctorId">
+          <div class="mb-3">
+            <label for="editDoctorName" class="form-label" th:text="#{name}">이름</label>
+            <input type="text" class="form-control" id="editDoctorName" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="editDoctorPosition" class="form-label" th:text="#{doctors.new.position}">직책</label>
+            <input type="text" class="form-control" id="editDoctorPosition" required>
+          </div>
+          <div class="mb-3">
+            <label for="editDoctorDescription" class="form-label" th:text="#{doctors.new.intro}">자기소개</label>
+            <textarea class="form-control" id="editDoctorDescription" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="editDoctorDescriptionEn" class="form-label" th:text="#{doctors.new.intro.en}">자기소개(영문)</label>
+            <textarea class="form-control" id="editDoctorDescriptionEn" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{cancel}">닫기</button>
+        <button type="button" class="btn btn-primary" id="saveDoctorBtn" th:text="#{save}">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="text-center mt-4 mb-4">
+    <a href="/myPage" class="btn btn-secondary px-4" th:text="#{back.to.mypage}">마이페이지로 돌아가기</a>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// 수정 버튼 클릭 시 모달에 값 채우기
+document.addEventListener('DOMContentLoaded', function() {
+  var editModal = document.getElementById('editDoctorModal');
+  editModal.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget;
+    var id = button.getAttribute('data-id');
+    var name = button.getAttribute('data-name');
+    var position = button.getAttribute('data-position');
+    var description = button.getAttribute('data-description');
+    var descriptionEn = button.getAttribute('data-descriptionen');
+    document.getElementById('editDoctorId').value = id;
+    document.getElementById('editDoctorName').value = name;
+    document.getElementById('editDoctorPosition').value = position;
+    document.getElementById('editDoctorDescription').value = description;
+    document.getElementById('editDoctorDescriptionEn').value = descriptionEn || '';
+  });
+
+  // 한글 자기소개 입력 시 자동 번역
+  var editDoctorDescription = document.getElementById('editDoctorDescription');
+  var editDoctorDescriptionEn = document.getElementById('editDoctorDescriptionEn');
+  var debounceTimer = null;
+  if (editDoctorDescription && editDoctorDescriptionEn) {
+    editDoctorDescription.addEventListener('input', function() {
+      const koreanText = this.value;
+      if (!koreanText.trim() || koreanText.length < 2) {
+        editDoctorDescriptionEn.value = '';
+        return;
+      }
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        fetch('/api/translate', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: 'text=' + encodeURIComponent(koreanText)
+        })
+        .then(res => res.json())
+        .then(data => {
+          editDoctorDescriptionEn.value = data.en || '';
+        })
+        .catch(() => {
+          editDoctorDescriptionEn.value = '';
+        });
+      }, 700); // 0.7초 지연
+    });
+  }
+
+  // 저장 버튼 클릭 시 (AJAX 저장은 후속 안내)
+  document.getElementById('saveDoctorBtn').addEventListener('click', function() {
+    var id = document.getElementById('editDoctorId').value;
+    var position = document.getElementById('editDoctorPosition').value;
+    var description = document.getElementById('editDoctorDescription').value;
+    var descriptionEn = document.getElementById('editDoctorDescriptionEn').value;
+
+    fetch('/doctors/update', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        id: id,
+        position: position,
+        description: description,
+        descriptionEn: descriptionEn
+      })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('저장 실패');
+      return res.json();
+    })
+    .then(data => {
+      // 성공 시 새로고침
+      window.location.reload();
+    })
+    .catch(err => {
+      alert('저장에 실패했습니다.');
+    });
+    var modal = bootstrap.Modal.getInstance(editModal);
+    modal.hide();
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="#{diagnosis.view.title}">진단서 조회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Nanum Gothic', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    .header {
+      text-align: center;
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 30px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 5px;
+    }
+
+    .form-row {
+      margin-bottom: 15px;
+    }
+
+    .form-row label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .form-row input, .form-row textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .form-row textarea {
+      height: 100px;
+    }
+
+    .form-row input:read-only,
+    .form-row textarea:read-only {
+      background-color: #f9f9f9;
+      color: #555;
+    }
+
+    .info-box {
+      margin-top: 40px;
+      font-size: 14px;
+      text-align: center;
+      color: #777;
+    }
+
+    .readonly-box {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    min-height: 60px;
+    white-space: pre-wrap;
+    font-size: 16px;
+    color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header" th:text="#{diagnosis.view.title}">진단서 조회</div>
+
+  <div th:if="${reservation.state.name() != 'D'}" class="alert alert-warning text-center" th:text="#{diagnosis.view.not.completed}">
+    이 진료는 아직 완료되지 않았습니다. 진단서를 확인할 수 없습니다.
+  </div>
+
+  <div th:if="${diagnosis != null and reservation.state.name() == 'D'}">
+
+    <!-- 환자 정보 -->
+    <div class="section-title" th:text="#{diagnosis.view.section.patient}">1. 환자 정보</div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.patient.name}">이름</label>
+      <span th:text="${user.name}"></span>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.patient.gender}">성별</label>
+      <span th:text="${user.gender == 'M' ? #messages.msg('diagnosis.view.patient.gender.male') : #messages.msg('diagnosis.view.patient.gender.female')}"></span>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.patient.birth}">생년월일</label>
+      <span th:text="${#temporals.format(user.birthDate, 'yyyy-MM-dd')}"></span>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.patient.address}">주소</label>
+      <span th:text="${user.address}"></span>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.patient.phone}">전화번호</label>
+      <span th:text="${user.phone}"></span>
+    </div>
+
+    <!-- 진단 정보 -->
+    <div class="section-title" th:text="#{diagnosis.view.section.diagnosis}">2. 진단 내용</div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.diagnosis}">진단명</label>
+      <div class="readonly-box" th:text="${diagnosis?.diagnosis}"></div>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.treatment}">치료 방법</label>
+      <div class="readonly-box" th:text="${diagnosis?.treatment}"></div>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.treatment.period}">치료 기간</label>
+      <span th:text="${diagnosis?.treatmentPeriod}"></span>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.diagnosis.period}">진단 기간</label>
+      <span th:text="${diagnosis?.diagnosisPeriod}"></span>
+    </div>
+    <div class="form-row">
+      <label th:text="#{diagnosis.view.opinion}">의사의 소견</label>
+      <div class="readonly-box" th:text="${diagnosis?.doctorOpinion}"></div>
+    </div>
+  </div>
+  <div class="info-box text-center mt-4">
+    <div class="d-flex justify-content-center gap-3">
+      <a th:if="${currentUser.role.name() == 'A' or currentUser.userId == user.userId}"
+         th:href="@{/diagnosis/pdf/{id}(id=${reservation.id}, lang=${#locale.language})}"
+         class="btn btn-danger"
+         th:text="#{diagnosis.view.button.pdf}">PDF 다운로드</a>
+      <a href="/diagnosis/list" class="btn btn-outline-secondary" th:text="#{diagnosis.view.button.back}">돌아가기</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

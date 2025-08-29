@@ -1,0 +1,417 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      --hospital-primary: #2563eb;
+      --hospital-secondary: #1e40af;
+      --hospital-accent: #3b82f6;
+      --hospital-success: #059669;
+      --hospital-danger: #dc2626;
+      --hospital-warning: #d97706;
+      --hospital-info: #0891b2;
+      --hospital-light: #f8fafc;
+      --hospital-dark: #1e293b;
+      --hospital-gray: #64748b;
+      --hospital-border: #e2e8f0;
+      --hospital-shadow: rgba(0, 0, 0, 0.1);
+      --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+    }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--hospital-light);
+      color: var(--hospital-dark);
+      margin: 0;
+    }
+    .container {
+      margin: 120px auto;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 800;
+      color: var(--hospital-primary);
+      font-size: 2rem;
+      letter-spacing: -1px;
+    }
+    table.table {
+      font-size: 1rem;
+      background-color: #fff;
+      border-collapse: collapse;
+      border-top: 2.5px solid var(--hospital-primary);
+      box-shadow: 0 4px 20px var(--hospital-shadow);
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+    }
+    table.table th, table.table td {
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1.5px solid var(--hospital-border);
+      padding: 14px 8px;
+    }
+    table.table thead th {
+      background: linear-gradient(135deg, var(--hospital-primary) 60%, var(--hospital-accent) 100%);
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 2px solid var(--hospital-primary);
+    }
+    table.table tbody tr:hover {
+      background-color: #e8f0fe;
+    }
+    table.table td a {
+      color: var(--hospital-dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    table.table td a:hover {
+      color: var(--hospital-primary);
+      text-decoration: underline;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--hospital-accent), var(--hospital-primary));
+      color: #fff;
+      box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+    }
+    .btn-outline-secondary {
+      background: #fff;
+      color: var(--hospital-primary);
+      border: 1.5px solid var(--hospital-primary);
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-outline-secondary:hover {
+      background: var(--hospital-primary);
+      color: #fff;
+    }
+    .pagination .page-item.active .page-link {
+      background: var(--hospital-primary);
+      border-color: var(--hospital-primary);
+      color: #fff;
+    }
+
+    .btn-warning {
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+      text-decoration: none;
+    }
+    .btn-warning:hover {
+      background: linear-gradient(135deg, var(--hospital-warning), var(--hospital-warning));
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--hospital-danger), var(--hospital-danger));
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+    }
+    .btn-danger:hover {
+      background: linear-gradient(135deg, var(--hospital-danger), var(--hospital-danger));
+      color: #fff;
+      box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+    }
+
+
+    .pagination .page-item.disabled .page-link {
+      color: #ccc;
+      pointer-events: none;
+      background-color: #f8f9fa;
+    }
+    form.d-flex select,
+    form.d-flex input {
+      min-width: 160px;
+    }
+    .text-end {
+      margin-top: 20px;
+    }
+    .og-preview-card {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      visibility: hidden;
+      pointer-events: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid var(--hospital-border);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+      padding: 10px;
+      z-index: 999;
+    }
+    .og-preview-card.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .og-preview-card img.og-img.hidden {
+      display: none;
+    }
+    .hidden {
+      display: none;
+    }
+    .og-preview-card .og-img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .og-title {
+      font-weight: bold;
+      font-size: 0.95rem;
+      margin-top: 8px;
+    }
+    .og-desc {
+      font-size: 0.85rem;
+      color: var(--hospital-gray);
+    }
+    @media (max-width: 991.98px) {
+      .container {
+        margin: 60px 0 0 0;
+        padding: 0 8px;
+      }
+      table.table th, table.table td {
+        padding: 8px 2px;
+        font-size: 0.95rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+
+
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h2 th:text="#{press.name}">언론보도</h2>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <!-- 총 게시글 수 -->
+    <div class="mb-3">
+      <span th:text="#{press.count}"></span>
+      <span> : </span>
+      <span th:text="${pressPage.totalElements}"></span>
+    </div>
+
+    <!-- 검색/필터 영역 -->
+    <form th:action="@{/board/press}" method="get" class="row g-2 mb-4">
+      <div class="col-auto">
+        <select name="searchType" class="form-select">
+          <option th:text="#{press.mass}" value="mediaName" th:selected="${searchType == 'mediaName'}">보도기관</option>
+          <option th:text="#{press.title}" value="title" th:selected="${searchType == 'title'}">기사제목</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <input type="text" name="keyword" class="form-control" th:value="${keyword}">
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">검색</button>
+      </div>
+    </form>
+  </div>
+
+    <div class="mb-3 text-end" sec:authorize="hasRole('A')">
+      <a th:href="@{/board/press_writeForm}" class="btn btn-primary" th:text="#{notice.write}">글쓰기</a>
+      <a th:href="@{/board/press_trash}" class="btn btn-outline-secondary ms-2" th:text="#{notice.deleted}">삭제된 글 보기</a>
+    </div>
+
+
+  <table class="table">
+    <thead>
+    <tr>
+      <th th:text="#{press.num}">번호</th>
+      <th th:text="#{press.mass}">보도기관</th>
+      <th th:text="#{press.title}">기사제목</th>
+      <th th:text="#{press.postCreatedDate}">보도일자</th>
+      <th sec:authorize="hasRole('A')" th:text="#{press.trash.restorationordelete}">삭제/복구</th> <!-- ✅ 관리자만 보임 -->
+      <th sec:authorize="hasRole('A')" th:text="#{news.edit}">수정</th> <!-- ✅ 관리자만 보임 -->
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="press, stat : ${pressPage.content}">
+      <td th:text="${pressPage.totalElements - (pressPage.number * pressPage.size + stat.index)}"></td>
+      <td th:text="${press.mediaName}"></td>
+
+      <td style="position: relative;"
+          th:attr="data-press-id=${press.id}">
+
+        <a th:href="${press.link}"
+           th:text="${#strings.abbreviate(press.title, 50)}"
+           class="preview-tooltip"
+           th:attr="data-press-id=${press.id}"
+           onmouseenter="showPreview(this)"
+           onmouseleave="scheduleHidePreview(this)"
+           target="_blank"
+           style="max-width: 300px;"></a>
+
+
+
+        <div class="og-preview-card"
+             th:id="'preview-' + ${press.id}"
+             onmouseenter="cancelHidePreview()"
+             onmouseleave="forceHidePreview(this)">
+          <img class="og-img hidden">
+          <div class="og-title">제목</div>
+          <div class="og-desc">설명</div>
+        </div>
+      </td>
+
+
+      <td th:text="${#temporals.format(press.publishedDate, 'yyyy-MM-dd')}"></td>
+
+      <!-- ✅ 관리자만 버튼 보이도록 -->
+      <td sec:authorize="hasRole('A')">
+        <form th:if="${!press.deleted}" th:action="@{/board/press/delete/{id}(id=${press.id})}" method="post" style="display:inline;">
+          <button class="btn btn-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?')" th:text="#{news.delete}">삭제</button>
+        </form>
+        <form th:if="${press.deleted}" th:action="@{/board/press/restore/{id}(id=${press.id})}" method="post" style="display:inline;">
+          <button class="btn btn-secondary btn-sm" onclick="return confirm('복구하시겠습니까?')" th:text="#{notice.trash.restoration}">복구</button>
+        </form>
+      </td>
+      <td sec:authorize="hasRole('A')">
+        <a th:href="@{/board/press/editForm/{id}(id=${press.id})}" class="btn btn-warning btn-sm" th:text="#{news.edit}">수정</a>
+      </td>
+    </tr>
+    <tr th:if="${pressPage.content.isEmpty()}">
+      <td colspan="5">등록된 보도자료가 없습니다.</td>
+    </tr>
+
+    </tbody>
+  </table>
+
+  <!-- ✅ 페이징 네비게이션: 페이지 수 2개 이상일 때만 표시 -->
+  <nav th:if="${pressPage.totalPages > 0}" aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center" style="list-style: none; padding: 0; margin: 0;">
+
+      <!-- 이전 버튼 -->
+      <li class="page-item" th:classappend="${pressPage.first} ? 'disabled'">
+        <a th:text="#{notice.list.prev}" th:href="@{/board/press(page=${pressPage.number == 0 ? 0 : pressPage.number - 1})}" class="page-link">이전</a>
+      </li>
+
+      <!-- 페이지 번호 버튼 -->
+      <li th:each="i : ${#numbers.sequence(1, pressPage.totalPages)}"
+          class="page-item"
+          th:classappend="${i == pressPage.number + 1} ? 'active'">
+        <a th:href="@{/board/press(page=${i - 1})}" th:text="${i}" class="page-link"></a>
+      </li>
+
+      <!-- 다음 버튼 -->
+      <li class="page-item" th:classappend="${pressPage.last} ? 'disabled'">
+        <a th:text="#{notice.list.next}" th:href="@{/board/press(page=${pressPage.number + 1})}" class="page-link">다음</a>
+      </li>
+
+    </ul>
+  </nav>
+
+
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script>
+  let hideTimeout = null;
+  let currentVisibleCardId = null;
+
+  function showPreview(el) {
+    const pressId = el.getAttribute("data-press-id");
+    const card = document.getElementById('preview-' + pressId);
+    if (!card) return;
+
+    if (currentVisibleCardId === pressId) return;
+    currentVisibleCardId = pressId;
+
+    fetch(`/api/press/oginfo/` + pressId)
+            .then(res => res.json())
+            .then(data => {
+              if (currentVisibleCardId !== pressId) return;
+
+              const img = card.querySelector('.og-img');
+              const titleElem = card.querySelector('.og-title');
+              const descElem = card.querySelector('.og-desc');
+
+              if (data.image && data.image.trim() !== "") {
+                img.src = data.image;
+                img.style.display = "block";
+              } else {
+                img.style.display = "none";  // 💡 깨진 이미지 숨기기
+              }
+
+              titleElem.textContent = data.title || '제목 없음';
+              descElem.textContent = data.description || '설명 없음';
+
+              card.classList.add('show');
+            });
+  }
+
+
+
+
+  function scheduleHidePreview(el) {
+    const pressId = el.getAttribute("data-press-id");
+    hideTimeout = setTimeout(() => {
+      hidePreviewById(pressId);
+      currentVisibleCardId = null;
+    }, 200);
+  }
+
+  function cancelHidePreview() {
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+  }
+
+  function forceHidePreview(el) {
+    const pressId = el.getAttribute("data-press-id");
+    hidePreviewById(pressId);
+    currentVisibleCardId = null;
+  }
+
+  function hidePreviewById(pressId) {
+    const card = document.getElementById('preview-' + pressId);
+    if (card) {
+      card.classList.remove('show');
+    }
+  }
+
+
+</script>
+
+
+</body>
+</html>

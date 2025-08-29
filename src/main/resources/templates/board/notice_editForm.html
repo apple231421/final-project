@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>공지사항 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--hospital-light);
+            color: var(--hospital-dark);
+            margin: 0;
+        }
+        .container {
+            margin: 120px auto;
+        }
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 32px;
+            font-weight: 800;
+            color: var(--hospital-primary);
+            font-size: 2rem;
+            letter-spacing: -1px;
+        }
+        .form-label {
+            font-weight: 700;
+            color: var(--hospital-dark);
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1.5px solid var(--hospital-border);
+            font-size: 1rem;
+            padding: 0.7rem 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+            background: #fff;
+            color: var(--hospital-dark);
+            transition: border 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--hospital-primary);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--hospital-primary);
+        }
+        .btn, .btn-primary {
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.7rem 1.5rem;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+        }
+        .btn:hover, .btn-primary:hover {
+            background: linear-gradient(135deg, var(--hospital-accent), var(--hospital-primary));
+            color: #fff;
+            box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+        }
+        .btn-outline-secondary {
+            background: #fff;
+            color: var(--hospital-primary);
+            border: 1.5px solid var(--hospital-primary);
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-outline-secondary:hover {
+            background: var(--hospital-primary);
+            color: #fff;
+        }
+        .alert {
+            background: #fff8e1;
+            border-left: 5px solid var(--hospital-warning);
+            color: var(--hospital-warning);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+        @media (max-width: 991.98px) {
+            .container {
+                margin: 60px 0 0 0;
+                padding: 0 8px;
+            }
+            h2, h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+    <script src="https://cdn.tiny.cloud/1/mktlb20x7afe52w9skphx1w443hawazmj76tgnrvwzl7a606/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '#content',
+            language: 'ko_KR',
+            plugins: 'code link lists table',
+            toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright | bullist numlist | link table code',
+            images_upload_url: '/board/upload/image',
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            images_upload_handler: function (blobInfo, success, failure) {
+                let formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                fetch('/upload/notice', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.text())
+                    .then(url => success(url))
+                    .catch(() => failure('이미지 업로드 실패'));
+            }
+        });
+    </script>
+</head>
+<div th:replace="fragments/header :: header"></div>
+
+<body class="container">
+<h2 class="text-center mb-4" th:text="#{notice.editting}">공지사항 수정</h2>
+
+<form th:action="@{|/board/notice/edit/${notice.id}|}" method="post" enctype="multipart/form-data" th:object="${notice}">
+    <div class="mb-3">
+        <label for="category" class="form-label" th:text="#{notice.list.selectCategory.category}">카테고리</label>
+        <select th:field="*{category}" class="form-select" id="category" style="width: 240px;" required>
+            <option value="" disabled th:text="#{notice.category.choice}">-- 선택하세요 --</option>
+            <option value="일반공지" th:text="#{notice.list.selectCategory.generalNotice}">일반공지</option>
+            <option value="이벤트" th:text="#{notice.list.selectCategory.event}">이벤트</option>
+            <option value="사이트안내" th:text="#{notice.list.selectCategory.siteGuide}">사이트안내</option>
+            <option value="의료상식" th:text="#{notice.list.selectCategory.medicalTips}">의료상식</option>
+            <option value="이달의 우수사원" th:text="#{notice.list.selectCategory.mvp}">이달의 우수사원</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="title" class="form-label" th:text="#{notice.list.postTitle}">제목</label>
+        <input type="text" th:field="*{title}" class="form-control" required>
+    </div>
+
+    <!-- 숨김 필드: 실제 제출용 영문 제목 -->
+    <input type="hidden" id="titleEn" name="titleEn">
+
+    <!-- 미리보기: 자동 번역된 영문 제목 -->
+    <div class="mb-3">
+        <label class="form-label" th:text="#{notice.list.postTitleEnpreview}">영문제목</label>
+        <input type="text" class="form-control" id="titleEnPreview" th:value="${notice.titleEn}" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="content" class="form-label" th:text="#{news.author.content}">내용</label>
+        <textarea id="content" th:field="*{content}" class="form-control" rows="10"></textarea>
+    </div>
+
+    <!-- 번역하기 버튼 -->
+    <div class="mb-3 text-end">
+        <button type="button" class="btn btn-info" id="translateContentBtn" th:text="#{notice.translation}">번역하기</button>
+    </div>
+
+    <!-- 숨김 필드: 실제 제출용 영문 내용 -->
+    <input type="hidden" id="contentEn" name="contentEn" th:value="${notice.contentEn}">
+
+    <!-- 미리보기: 자동 번역된 영문 내용 -->
+    <div class="mb-3">
+        <label class="form-label">영문내용 미리보기</label>
+        <textarea type="text" class="form-control" id="contentEnPreview" th:text="${notice.contentEn}"></textarea>
+    </div>
+
+    <!-- 번역 결과 모달 -->
+    <div class="modal fade" id="translateModal" tabindex="-1" aria-labelledby="translateModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="translateModalLabel">영문 번역 결과</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <textarea id="modalContentEn" class="form-control" rows="10"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="confirmTranslateBtn">확인</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3" id="file-inputs">
+        <label for="file" class="form-label" th:text="#{notice.view.fileDownload}">파일 첨부</label>
+        <input type="file" name="files" class="form-control mb-2">
+        <div th:if="${notice.storedFilename}">
+            <p class="mt-2" th:text="#{notice.view.currentfile}">현재 파일:</p>
+            <div th:each="fileName, iterStat : ${#strings.arraySplit(notice.storedFilename, ',')}">
+                <div class="mb-2">
+                    <img th:src="@{'/images/notice/' + ${fileName}}" alt="첨부 이미지" class="img-thumbnail mt-2 me-2" style="max-width: 200px;">
+                    <label>
+                        <input type="checkbox" name="deleteFiles" th:value="${fileName}" th:text="#{news.delete}">
+                        삭제
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary mb-3" id="add-file-input" th:text="#{notice.new.addfile}">파일 추가</button>
+
+    <!-- 영문 첨부파일 -->
+    <div class="mb-3" id="fileEn-inputs">
+        <label class="form-label">영문 첨부파일</label>
+        <input type="file" name="filesEn" class="form-control mb-2">
+        <div th:if="${notice.storedFilenameEn}">
+            <p class="mt-2">현재 영문 파일:</p>
+            <div th:each="fileName, iterStat : ${#strings.arraySplit(notice.storedFilenameEn, ',')}">
+                <div class="mb-2">
+                    <img th:src="@{'/images/notice/' + ${fileName}}" alt="영문 첨부 이미지" class="img-thumbnail mt-2 me-2" style="max-width: 200px;">
+                    <label>
+                        <input type="checkbox" name="deleteFilesEn" th:value="${fileName}"> 삭제
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary mb-3" id="add-fileEn-input">영문 파일 추가</button>
+
+    <div class="text-end">
+        <button type="submit" class="btn burgundy-btn" id="submitBtn" th:text="#{news.edit}">수정</button>
+        <a th:href="@{/board/notice}" class="btn btn-secondary" th:text="#{news.back}">취소</a>
+    </div>
+</form>
+
+<script th:inline="javascript">
+    const currentLang = /*[[${#locale.language}]]*/ 'ko';
+</script>
+
+<script th:inline="javascript">
+    const i18n = {
+        contentRequired: [[#{validation.content.required}]],
+    translationFail: [[#{translation.fail}]],
+    translationInProgress: [[#{translation.inprogress}]],
+    imageUploadFail: [[#{upload.image.error}]],
+    missingLocation: [[#{upload.image.missingLocation}]]
+    };
+</script>
+
+<script>
+    document.getElementById('add-file-input').addEventListener('click', function() {
+        const fileInputsDiv = document.getElementById('file-inputs');
+        const newInput = document.createElement('input');
+        newInput.type = 'file';
+        newInput.name = 'files';
+        newInput.className = 'form-control mb-2';
+        fileInputsDiv.appendChild(newInput);
+    });
+    document.getElementById('add-fileEn-input').addEventListener('click', function() {
+        const fileInputsDiv = document.getElementById('fileEn-inputs');
+        const newInput = document.createElement('input');
+        newInput.type = 'file';
+        newInput.name = 'filesEn';
+        newInput.className = 'form-control mb-2';
+        fileInputsDiv.appendChild(newInput);
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // 제목 번역
+        var title = document.getElementById("title");
+        var titleEn = document.getElementById("titleEn");
+        var titleEnPreview = document.getElementById("titleEnPreview");
+        var titleDebounce = null;
+
+        if (title && titleEn && titleEnPreview) {
+            title.addEventListener("input", function() {
+                const koreanText = this.value;
+                if (!koreanText.trim() || koreanText.length < 2) {
+                    titleEn.value = "";
+                    titleEnPreview.value = "";
+                    return;
+                }
+                if (titleDebounce) clearTimeout(titleDebounce);
+                titleDebounce = setTimeout(function() {
+                    fetch('/api/translate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: 'text=' + encodeURIComponent(koreanText)
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            titleEn.value = data.en || "";
+                            titleEnPreview.value = data.en || "";
+                        })
+                        .catch(() => {
+                            titleEn.value = "";
+                            titleEnPreview.value = "";
+                        });
+                }, 700); // 0.7초 지연
+            });
+        }
+
+        // 내용 번역: contentRaw textarea의 input 이벤트에서만 처리
+        var contentRaw = document.getElementById("contentRaw");
+        var contentEn = document.getElementById("contentEn");
+        var contentEnPreview = document.getElementById("contentEnPreview");
+        var contentDebounce = null;
+
+        if (contentRaw && contentEn && contentEnPreview) {
+            contentRaw.addEventListener("input", function() {
+                const koreanText = this.value;
+                if (!koreanText.trim() || koreanText.length < 2) {
+                    contentEn.value = "";
+                    contentEnPreview.value = "";
+                    return;
+                }
+                if (contentDebounce) clearTimeout(contentDebounce);
+                contentDebounce = setTimeout(function() {
+                    fetch('/api/translate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: 'text=' + encodeURIComponent(koreanText)
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            contentEn.value = data.en || "";
+                            contentEnPreview.value = data.en || "";
+                        })
+                        .catch(() => {
+                            contentEn.value = "";
+                            contentEnPreview.value = "";
+                        });
+                }, 700);
+            });
+        }
+
+        // tinymce에서 입력받은 텍스트를 contentRaw에 저장
+        if (window.tinymce) {
+            tinymce.init({
+                selector: '#content',
+                language: 'ko',
+                language_url: '/js/notice_ko.js',
+                height: 400,
+                plugins: 'link lists code table',
+                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | code table',
+                branding: false,
+                promotion: false,
+                images_upload_url: '/upload/image',
+                images_upload_handler: function (blobInfo, success, failure) {
+                    const formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                    return fetch('/upload/image', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.location) throw new Error("서버 응답에 'location' 키 없음");
+                            success(data.location);
+                        })
+                        .catch(error => {
+                            alert(i18n.imageUploadFail + ': ' + error.message);
+                            failure(error.message);
+                        });
+                },
+                setup: function (editor) {
+                    editor.on('change keyup', function () {
+                        var textContent = editor.getContent({ format: 'text' }).trim();
+                        document.getElementById('contentRaw').value = textContent;
+                        document.getElementById('contentRaw').dispatchEvent(new Event('input'));
+                    });
+                    document.querySelector('form').addEventListener('submit', function (e) {
+                        const content = tinymce.get('content').getContent({ format: 'text' }).trim();
+                        if (!content) {
+                            alert(i18n.contentRequired);
+                            e.preventDefault();
+                            tinymce.get('content').focus();
+                        }
+                    });
+                }
+            });
+        }
+
+        // 폼 제출 시 값 복사 및 버튼 처리
+        var writeForm = document.getElementById("writeForm");
+        var submitBtn = document.getElementById("submitBtn");
+        if (writeForm) {
+            writeForm.addEventListener("submit", function() {
+                if (titleEn && titleEnPreview) titleEn.value = titleEnPreview.value;
+                if (contentEn && contentEnPreview) contentEn.value = contentEnPreview.value;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = (currentLang === 'en') ? 'Submitting...' : '수정 중...';
+                }
+            });
+        }
+
+        // 번역하기 버튼 클릭 이벤트
+        var translateBtn = document.getElementById('translateContentBtn');
+        var modal = new bootstrap.Modal(document.getElementById('translateModal'));
+        var modalContentEn = document.getElementById('modalContentEn');
+        var contentEn = document.getElementById('contentEn');
+        if (translateBtn && modalContentEn && contentEn) {
+            translateBtn.addEventListener('click', function() {
+                var contentText = '';
+                if (window.tinymce && tinymce.get('content')) {
+                    contentText = tinymce.get('content').getContent({ format: 'text' }).trim();
+                } else {
+                    var contentTextarea = document.getElementById('content');
+                    contentText = contentTextarea ? contentTextarea.value.trim() : '';
+                }
+                if (!contentText || contentText.length < 2) {
+                    alert(i18n.contentRequired);
+                    return;
+                }
+                modalContentEn.value = i18n.translationInProgress;
+                modal.show();
+                fetch('/api/translate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'text=' + encodeURIComponent(contentText)
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        modalContentEn.value = data.en || '';
+                    })
+                    .catch(() => {
+                        modalContentEn.value = i18n.translationFail;
+                    });
+            });
+            // 확인 버튼 클릭 시 숨김 필드와 미리보기 textarea에 저장
+            document.getElementById('confirmTranslateBtn').addEventListener('click', function() {
+                contentEn.value = modalContentEn.value;
+                var contentEnPreview = document.getElementById('contentEnPreview');
+                if(contentEnPreview) contentEnPreview.value = modalContentEn.value;
+                modal.hide();
+            });
+        }
+    });
+
+    var writeForm = document.getElementById("writeForm");
+    var submitBtn = document.getElementById("submitBtn");
+
+    if (writeForm && submitBtn) {
+        submitBtn.addEventListener("click", function () {
+            var title = document.getElementById("title");
+            if (!title || !title.value.trim()) {
+                alert((currentLang === 'en') ? 'Please enter a title.' : '제목을 입력해주세요.');
+                title.focus();
+                return;
+            }
+
+            // 예: 유효성 검사 함수. 실패 시 제출 중단
+            if (typeof mergePhoneAndAddress === 'function' && !mergePhoneAndAddress()) {
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // 제목/내용 영문 필드 복사
+            var titleEn = document.getElementById("titleEn");
+            var titleEnPreview = document.getElementById("titleEnPreview");
+            var contentEn = document.getElementById("contentEn");
+            var contentEnPreview = document.getElementById("contentEnPreview");
+
+            if (titleEn && titleEnPreview) titleEn.value = titleEnPreview.value;
+            if (contentEn && contentEnPreview) contentEn.value = contentEnPreview.value;
+
+            // 버튼 상태 처리
+            submitBtn.disabled = true;
+            submitBtn.innerText = (currentLang === 'en') ? 'Submitting...' : '등록 중...';
+
+            // 폼 제출
+            writeForm.submit();
+        });
+    }
+
+
+</script>
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

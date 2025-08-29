@@ -1,0 +1,332 @@
+<!-- templates/fragments/footer.html -->
+
+<div th:fragment="footer">
+    <style>
+        :root {
+            --hospital-blue: #1e40af;
+            --hospital-light-blue: #3b82f6;
+            --hospital-green: #059669;
+            --hospital-light-green: #10b981;
+            --hospital-gray: #6b7280;
+            --hospital-light-gray: #f3f4f6;
+            --hospital-dark: #1f2937;
+            --hospital-white: #ffffff;
+            --hospital-border: #e5e7eb;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, var(--hospital-dark) 0%, #374151 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        }
+
+        .footer-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-section {
+            margin-bottom: 2rem;
+        }
+
+        .footer-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+            padding: 0.25rem 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-link:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .contact-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .contact-icon {
+            width: 20px;
+            margin-right: 0.75rem;
+            color: var(--hospital-light-blue);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .social-link:hover {
+            background: var(--hospital-blue);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .footer-logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--hospital-light-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-bot-button {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--hospital-green), var(--hospital-light-green));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 2px solid white;
+        }
+
+        .chat-bot-button:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+            color: white;
+        }
+
+        .chat-bot-button .chat-icon {
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--hospital-blue), var(--hospital-light-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4);
+            color: white;
+        }
+
+        .emergency-footer {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-section {
+                text-align: center;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <footer class="footer py-5">
+        <div class="container footer-content">
+            <!-- 긴급 연락처 -->
+            <div class="emergency-footer">
+                <i class="bi bi-telephone-fill"></i>
+                <strong th:text="#{footer.emergency.room}">응급실: 1588-1234</strong> |
+                <i class="bi bi-clock"></i>
+                <strong th:text="#{footer.emergency.24hours}">24시간 응급진료</strong>
+            </div>
+
+            <div class="row">
+                <!-- 병원 정보 -->
+                <div class="col-lg-4 footer-section">
+                    <div class="footer-logo" th:text="#{footer.hospital.name}">더좋은 병원</div>
+                    <p class="mb-3" th:text="#{footer.hospital.description}">환자를 위한 최고의 의료서비스를 제공하는 더좋은 병원입니다.</p>
+
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="bi bi-geo-alt contact-icon"></i>
+                            <span th:text="#{footer.address}">서울특별시 성북구 안암로 145</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="bi bi-telephone contact-icon"></i>
+                            <span th:text="#{footer.phone}">1588-1234</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="bi bi-envelope contact-icon"></i>
+                            <span th:text="#{footer.email}">info@hospital.com</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 진료과 -->
+                <div class="col-lg-2 footer-section">
+                    <h6 class="footer-title" th:text="#{footer.section.departments}">진료과</h6>
+                    <a th:href="@{/doctors?department=내과}" class="footer-link" th:text="#{footer.department.internal}">내과</a>
+                    <a th:href="@{/doctors?department=외과}" class="footer-link" th:text="#{footer.department.surgery}">외과</a>
+                    <a th:href="@{/doctors?department=소아청소년과}" class="footer-link" th:text="#{footer.department.pediatrics}">소아청소년과</a>
+                    <a th:href="@{/doctors?department=정형외과}" class="footer-link" th:text="#{footer.department.orthopedics}">정형외과</a>
+                    <a th:href="@{/doctors?department=신경과}" class="footer-link" th:text="#{footer.department.neurology}">신경과</a>
+                    <a th:href="@{/doctors?department=심장내과}" class="footer-link" th:text="#{footer.department.cardiology}">심장내과</a>
+                </div>
+
+                <!-- 환자 서비스 -->
+                <div class="col-lg-2 footer-section">
+                    <h6 class="footer-title" th:text="#{footer.section.patient.service}">환자 서비스</h6>
+                    <a th:href="@{/reservation}" class="footer-link" th:text="#{footer.service.reservation}">진료 예약</a>
+                    <a th:href="@{/guide/visit}" class="footer-link" th:text="#{footer.service.way}">오시는 길</a>
+                    <a th:href="@{/guide/parking}" class="footer-link" th:text="#{footer.service.parking}">주차안내</a>
+                    <a th:href="@{/diagnosis/list}" class="footer-link" th:text="#{footer.service.certificate}">증명서 발급</a>
+                </div>
+
+                <!-- 병원 정보 -->
+                <div class="col-lg-2 footer-section">
+                    <h6 class="footer-title" th:text="#{footer.section.hospital.info}">병원 정보</h6>
+                    <a th:href="@{/about/greeting}" class="footer-link" th:text="#{footer.info.greeting}">병원장 인사말</a>
+                    <a th:href="@{/about/org}" class="footer-link" th:text="#{footer.info.org}">조직도</a>
+                    <a th:href="@{/about/history}" class="footer-link" th:text="#{footer.info.history}">연혁</a>
+                    <a th:href="@{/board/notice}" class="footer-link" th:text="#{footer.info.notice}">공지사항</a>
+                    <a th:href="@{/board/news}" class="footer-link" th:text="#{footer.info.news}">뉴스</a>
+                </div>
+
+                <!-- 고객 지원 -->
+                <div class="col-lg-2 footer-section">
+                    <h6 class="footer-title" th:text="#{footer.section.customer.support}">고객 지원</h6>
+                    <a th:href="@{/guide/faq}" class="footer-link" th:text="#{footer.support.faq}">FAQ</a>
+                    <a th:href="@{/guide/consult}" class="footer-link" th:text="#{footer.support.voice}">고객의 소리</a>
+                    <a th:href="@{/volunteer/volunteerHome}" class="footer-link" th:text="#{footer.support.volunteer}">자원봉사</a>
+                    <a th:href="@{/board/press}" class="footer-link" th:text="#{footer.support.press}">언론보도</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="mb-2" th:text="#{footer.copyright}">&copy; 2025 더좋은 병원. All rights reserved.</p>
+                <div class="d-flex justify-content-center gap-4 flex-wrap">
+                    <a href="/policy/privacy-policy" class="footer-link d-inline" th:text="#{footer.privacy}">개인정보처리방침</a>
+                    <a href="/policy/terms-of-service" class="footer-link d-inline" th:text="#{footer.terms}">이용약관</a>
+                    <a href="/policy/related-sites" class="footer-link d-inline" th:text="#{footer.related}">관련사이트</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 챗봇 버튼 -->
+    <a th:href="@{/chat}" class="chat-bot-button" id="chatBotButton" th:title="#{footer.chat.title}">
+        <i class="bi bi-chat-dots chat-icon"></i>
+    </a>
+
+    <!-- 맨 위로 버튼 -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="bi bi-arrow-up"></i>
+    </a>
+
+    <script>
+        // 맨 위로 버튼 기능
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</div>

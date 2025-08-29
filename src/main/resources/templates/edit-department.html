@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{department.edit}">진료과 수정</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="bg-light">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container py-5">
+  <h3 class="mb-4" th:text="#{department.edit}">진료과 수정</h3>
+
+  <!-- ✅ 폼: 한글명 입력 후 자동 번역 -->
+  <form th:action="@{'/departments/edit/' + ${department.id}}"
+        method="post"
+        class="mt-4"
+        onsubmit="syncTranslatedValue()">
+
+    <!-- ✅ 한글명 -->
+    <div class="mb-3">
+      <label for="name" class="form-label" th:text="#{department.name}">진료과명(한글)</label>
+      <input type="text"
+             class="form-control"
+             id="name"
+             name="name"
+             th:value="${department.name}"
+             placeholder="예: 내과"
+             required
+             onblur="autoTranslate()">
+    </div>
+
+    <!-- ✅ 자동 번역된 영어명 (백엔드 저장용 hidden) -->
+    <input type="hidden" id="nameEn" name="nameEn" th:value="${department.nameEn}">
+
+    <!-- ✅ 영어 자동 번역 미리보기 -->
+    <div class="mb-3">
+      <label class="form-label">자동 번역된 진료과명(영문)</label>
+      <input type="text" class="form-control" id="nameEnPreview" th:value="${department.nameEn}">
+      <div class="form-text">* 영문명을 직접 입력하지 않으면 자동 번역됩니다</div>
+
+    </div>
+
+    <!-- 버튼 -->
+    <button type="submit" class="btn btn-primary" th:text="#{save}">저장</button>
+    <a th:href="@{/departments/list}" class="btn btn-secondary" th:text="#{cancel}">취소</a>
+  </form>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // ✅ 한글명 → 자동 번역 → 미리보기 + 숨김 필드에 반영
+  function autoTranslate() {
+    const name = document.getElementById('name').value.trim();
+    if (!name) return;
+
+    fetch('/departments/api/translate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'text=' + encodeURIComponent(name)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        console.warn('번역 실패:', data.error);
+        document.getElementById('nameEn').value = '';
+        document.getElementById('nameEnPreview').value = '번역 실패';
+        return;
+      }
+      const translated = data.en || '';
+      document.getElementById('nameEn').value = translated;
+      document.getElementById('nameEnPreview').value = translated;
+    })
+    .catch(err => {
+      console.error('번역 API 호출 실패', err);
+      document.getElementById('nameEnPreview').value = '번역 실패';
+    });
+  }
+
+  // ✅ 미리보기 필드 → 숨김 필드로 복사 (폼 제출 전)
+  function syncTranslatedValue() {
+    const preview = document.getElementById('nameEnPreview').value.trim();
+    document.getElementById('nameEn').value = preview;
+  }
+</script>
+
+
+</body>
+</html>

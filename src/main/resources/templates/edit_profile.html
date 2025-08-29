@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{edit.profile.title}">프로필 수정 - 더조은 병원</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hospital-primary: #2563eb;
+      --hospital-secondary: #1e40af;
+      --hospital-accent: #3b82f6;
+      --hospital-success: #059669;
+      --hospital-danger: #dc2626;
+      --hospital-warning: #d97706;
+      --hospital-info: #0891b2;
+      --hospital-light: #f8fafc;
+      --hospital-dark: #1e293b;
+      --hospital-gray: #64748b;
+      --hospital-border: #e2e8f0;
+      --hospital-shadow: rgba(0, 0, 0, 0.1);
+      --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(220, 38, 38, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .edit-container {
+      max-width: 600px;
+      margin: 120px auto 60px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .edit-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent), var(--hospital-success));
+      border-radius: 20px 20px 0 0;
+    }
+
+    .edit-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .edit-header h3 {
+      color: var(--hospital-dark);
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .edit-header p {
+      color: var(--hospital-gray);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .form-label {
+      color: var(--hospital-dark);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-control {
+      border: 2px solid var(--hospital-border);
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .form-control:focus {
+      border-color: var(--hospital-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      background: white;
+    }
+
+    .form-control[readonly] {
+      background: rgba(248, 250, 252, 0.8);
+      color: var(--hospital-gray);
+    }
+
+    .form-control::placeholder {
+      color: var(--hospital-gray);
+      opacity: 0.7;
+    }
+
+    .phone-inputs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .phone-inputs .form-control {
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .btn-outline-secondary {
+      border: 2px solid var(--hospital-border);
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      color: var(--hospital-gray);
+    }
+
+    .btn-outline-secondary:hover {
+      border-color: var(--hospital-primary);
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--hospital-primary);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+      background: linear-gradient(135deg, var(--hospital-secondary), var(--hospital-primary));
+    }
+
+    .input-group {
+      box-shadow: none;
+    }
+
+    .input-group .form-control {
+      border-right: none;
+    }
+
+    .input-group .btn {
+      border-left: none;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .address-section {
+      background: rgba(248, 250, 252, 0.5);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--hospital-border);
+      margin-bottom: 1.5rem;
+    }
+
+    .address-section .form-label {
+      color: var(--hospital-primary);
+      font-weight: 700;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: rgba(248, 250, 252, 0.3);
+      border-radius: 12px;
+      border: 1px solid var(--hospital-border);
+    }
+
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      color: var(--hospital-dark);
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .required::after {
+      content: ' *';
+      color: var(--hospital-danger);
+      font-weight: 700;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .edit-container {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    @media (max-width: 576px) {
+      .edit-container {
+        margin: 100px 1rem 60px;
+        padding: 2rem;
+      }
+
+      .phone-inputs {
+        flex-direction: column;
+      }
+
+      .address-section {
+        padding: 1rem;
+      }
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn-group .btn {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="edit-container">
+  <div class="edit-header">
+    <h3><i class="bi bi-person-gear text-primary me-2"></i><span th:text="#{edit.profile}">프로필 수정</span></h3>
+    <p th:text="#{edit.profile.guide}">개인정보를 수정하고 저장하세요</p>
+  </div>
+
+  <form method="post" action="/edit_profile" onsubmit="return mergePhoneAndAddress()">
+
+    <!-- 연락처 정보 -->
+    <div class="form-section">
+      <h5 class="section-title">
+        <i class="bi bi-telephone"></i><span th:text="#{contact.info}">연락처 정보</span>
+      </h5>
+
+      <div class="mb-3">
+        <label class="form-label required">
+          <i class="bi bi-telephone me-2"></i><span th:text="#{phone}">전화번호</span>
+        </label>
+        <div class="phone-inputs">
+          <input type="text" name="phone1" class="form-control only-number" maxlength="3" th:value="${phoneParts[0]}" th:placeholder="#{phone1.placeholder}" placeholder="010" required>
+          <input type="text" name="phone2" class="form-control only-number" maxlength="4" th:value="${phoneParts[1]}" th:placeholder="#{phone2.placeholder}" placeholder="1234" required>
+          <input type="text" name="phone3" class="form-control only-number" maxlength="4" th:value="${phoneParts[2]}" th:placeholder="#{phone3.placeholder}" placeholder="5678" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- 주소 정보 -->
+    <div class="form-section">
+      <h5 class="section-title">
+        <i class="bi bi-geo-alt"></i><span th:text="#{address.info}">주소 정보</span>
+      </h5>
+
+      <div class="address-section">
+        <div class="input-group mb-3">
+          <input type="text" name="postcode" id="postcode" class="form-control" th:placeholder="#{postcode.placeholder}" placeholder="우편번호" th:value="${addressParts[0]}" readonly>
+          <button type="button" class="btn btn-outline-secondary" onclick="execDaumPostcode()">
+            <i class="bi bi-search me-1"></i><span th:text="#{postcode.search}">우편번호 찾기</span>
+          </button>
+        </div>
+        <input type="text" name="roadAddress" id="roadAddress" class="form-control mb-3" th:placeholder="#{roadaddress.placeholder}" placeholder="도로명주소" th:value="${addressParts[1]}" readonly>
+        <input type="text" name="detailAddress" id="detailAddress" class="form-control mb-3" th:placeholder="#{detailaddress.placeholder}" placeholder="상세주소" th:value="${addressParts[2]}">
+        <input type="text" name="extraAddress" id="extraAddress" class="form-control mb-2" th:placeholder="#{extraaddress.placeholder}" placeholder="참고항목" th:value="${addressParts[3]}" readonly>
+      </div>
+    </div>
+
+    <!-- Hidden 필드 -->
+    <input type="hidden" name="phone" id="fullPhone">
+    <input type="hidden" name="address" id="fullAddress">
+
+    <!-- 버튼 그룹 -->
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-circle me-2"></i><span th:text="#{edit.profile}">프로필 수정</span>
+      </button>
+      <a href="/myPage" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i><span th:text="#{back.to.list}">목록으로 돌아가기</span>
+      </a>
+    </div>
+  </form>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Daum 주소 API -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script>
+  // 숫자만 입력되도록 필터링
+  document.querySelectorAll('.only-number').forEach(input => {
+    input.addEventListener('input', function () {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+  });
+
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        let roadAddr = data.roadAddress;
+        let extraAddr = '';
+
+        // 추가 주소(동/로/가) 처리
+        if(data.bname && /[동|로|가]$/g.test(data.bname)) extraAddr += data.bname;
+        // 아파트나 건물명이 있을 경우 처리
+        if(data.buildingName && data.apartment === 'Y') {
+          extraAddr += (extraAddr ? ', ' + data.buildingName : data.buildingName);
+        }
+        // 참고항목 처리
+        if(extraAddr) extraAddr = ' (' + extraAddr + ')';
+
+        // 우편번호, 도로명주소, 참고항목 입력
+        document.getElementById("postcode").value = data.zonecode;
+        document.getElementById("roadAddress").value = roadAddr;
+        document.getElementById("extraAddress").value = extraAddr;
+
+        // 상세주소 초기화
+        document.getElementById("detailAddress").value = "";
+      }
+    }).open();
+  }
+
+  function mergePhoneAndAddress() {
+    // 전화번호 병합
+    const p1 = document.querySelector('input[name="phone1"]').value;
+    const p2 = document.querySelector('input[name="phone2"]').value;
+    const p3 = document.querySelector('input[name="phone3"]').value;
+    document.getElementById("fullPhone").value = `${p1}-${p2}-${p3}`;
+
+    // 주소 병합
+    const postcode = document.getElementById("postcode").value;
+    const road = document.getElementById("roadAddress").value;
+    const detail = document.getElementById("detailAddress").value;
+    const extra = document.getElementById("extraAddress").value;
+    document.getElementById("fullAddress").value = `${postcode}/${road}/${detail}/${extra}`.trim();
+
+    return true;
+  }
+</script>
+</body>
+</html>

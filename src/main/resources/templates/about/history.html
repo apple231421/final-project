@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>연혁 | 더조은병원</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f4f8ff;
+            margin-top: 0;
+            color: #333;
+        }
+
+        .title_history {
+            text-align: center;
+            margin: 20px auto;
+            color: black;
+        }
+
+        .org-chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 100px;
+            margin-bottom: 80px;
+        }
+
+        .org-chart-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<!-- 상단 공통 헤더 -->
+<div th:replace="fragments/header :: header"></div>
+
+<!-- 조직도 이미지 삽입 영역 -->
+<div class="container org-chart-container">
+    <!-- 페이지 제목 -->
+    <h1 class="title_history" th:text="#{about.history.title}">연혁</h1>
+    <img th:if="${#locale.language == 'en'}" th:src="@{/images/history_en.jpg}" alt="연혁 이미지">
+    <img th:unless="${#locale.language == 'en'}" th:src="@{/images/history.jpg}" alt="연혁 이미지">
+</div>
+
+<!-- 하단 공통 푸터 -->
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>

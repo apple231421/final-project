@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>카드뉴스 상세보기</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--hospital-light);
+            color: var(--hospital-dark);
+            margin: 0;
+        }
+        .container {
+            margin: 120px auto;
+        }
+        .card {
+            border: 1.5px solid var(--hospital-border);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+            overflow: hidden;
+        }
+        .card-img-top {
+            width: 50%;
+            max-height: 400px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            border-bottom: 1px solid var(--hospital-border);
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .card-title {
+            font-weight: 800;
+            color: var(--hospital-primary);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        .card-text {
+            color: var(--hospital-gray);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .card-text i {
+            color: var(--hospital-primary);
+            margin-right: 0.5rem;
+        }
+        hr {
+            border-color: var(--hospital-border);
+            margin: 2rem 0;
+        }
+        .card-footer {
+            background: var(--hospital-light);
+            border-top: 1px solid var(--hospital-border);
+            padding: 1.5rem 2rem;
+        }
+        .btn {
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+            margin-left: 0.5rem;
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, var(--hospital-warning), #f59e0b);
+            border: none;
+            color: #fff;
+        }
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f59e0b, var(--hospital-warning));
+            color: #fff;
+            box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, var(--hospital-danger), #ef4444);
+            border: none;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ef4444, var(--hospital-danger));
+            color: #fff;
+            box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #64748b, #94a3b8); /* slate-600 to slate-400 */
+            border: none;
+            color: #fff;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #94a3b8, #64748b);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(100, 116, 139, 0.4); /* shadow slate tone */
+        }
+        
+        /* 의사 카드 스타일 */
+        .doctor-card {
+            background: #fff;
+            border: 1px solid var(--hospital-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+        .doctor-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+        }
+        .doctor-image-container {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .doctor-profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--hospital-primary);
+        }
+        .doctor-name {
+            font-weight: 700;
+            color: var(--hospital-primary);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .doctor-department {
+            font-weight: 600;
+            color: var(--hospital-dark);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+        .doctor-position {
+            font-weight: 500;
+            color: var(--hospital-gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .doctor-description {
+            color: var(--hospital-gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .doctor-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .doctor-actions .btn {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        @media (max-width: 991.98px) {
+            .container {
+                margin: 60px 0 0 0;
+                padding: 0 8px;
+            }
+            .card-body {
+                padding: 1.5rem;
+            }
+            .card-title {
+                font-size: 1.4rem;
+            }
+            .card-footer {
+                padding: 1rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <div class="card mb-4">
+        <img th:if="${news.filePath != null}" th:src="@{${news.filePath}}" class="card-img-top" alt="썸네일">
+        <div class="card-body">
+            <h2 class="card-title" th:text="${news.title}"></h2>
+            <p class="card-text"><i class="bi bi-calendar"></i> <span th:text="${#temporals.format(news.createdAt, 'yyyy-MM-dd')}"></span></p>
+            <hr/>
+            <div th:utext="${news.content}"></div>
+        </div>
+
+        <!-- 작성자 정보 섹션 -->
+        <div class="card-body" th:if="${authors != null and !authors.isEmpty()}">
+            <hr/>
+            <h3 class="mb-4" style="color: var(--hospital-primary); font-weight: 700;" th:text="#{news.author.title}">작성자</h3>
+            <div class="row">
+                <div class="col-md-6 col-lg-4 mb-3" th:each="author : ${authors}">
+                    <div class="doctor-card">
+                        <div class="doctor-image-container">
+                            <img th:if="${author.profileImage != null}" th:src="@{${author.profileImage}}" 
+                                 class="doctor-profile-image" alt="의사 프로필">
+                            <img th:if="${author.profileImage == null}" src="/images/default-doctor.jpg" 
+                                 class="doctor-profile-image" alt="기본 프로필">
+                        </div>
+                        <h4 class="doctor-name" th:text="${author.name}">의사 이름</h4>
+                        <h5 class="doctor-department" th:text="${author.department != null} ? (${#locale.language == 'en'} ? ${author.department.nameEn} : ${author.department.name}) : #{doctors.list.unassigned}">의사 과</h5>
+                        <h5 class="doctor-position" th:text="${author.position}">직책</h5>
+                        <P class="doctor-description" th:text="${author.description != null} ? (${#locale.language == 'en'} ? ${author.descriptionEn} : ${author.description}) : #{doctors.list.unassigned}">소개글</P>
+                        <div class="doctor-actions">
+                            <a th:href="@{/doctors/{id}(id=${author.id})}" class="btn btn-outline-primary btn-sm mb-2" th:text="#{news.author.profile}">
+                                <i class="bi bi-person-circle"></i> 프로필 보기
+                            </a>
+                            <a th:if="${author.email != #authentication.name}"
+                               sec:authorize="!hasRole('A')"
+                               th:href="@{/reservation(
+                                dept=${author.department.name},
+                                doctorId=${author.id},
+                                doctorName=${author.name},
+                                doctorImage=${author.profileImage != null ? author.profileImage : '/images/default-doctor.jpg'}
+                                )}"
+                               class="btn btn-primary btn-sm">
+                                <i class="bi bi-calendar-check"></i>
+                                <span th:text="#{news.author.book}">예약하기</span>
+                            </a>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer text-end">
+            <a th:if="${#authorization.expression('hasRole(''A'')')}" th:href="@{/board/news/edit/{id}(id=${news.id})}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i> <span th:text="#{news.edit}">수정</span></a>
+            <a th:if="${#authorization.expression('hasRole(''A'')')}" th:href="@{/board/news/delete/{id}(id=${news.id})}" class="btn btn-danger btn-sm" onclick="return confirm('정말 삭제하시겠습니까?');"><i class="bi bi-trash"></i> <span th:text="#{news.delete}">삭제</span></a>
+            <a th:href="@{/board/news}" class="btn btn-success btn-sm" th:text="#{news.list}">목록</a>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html> 
