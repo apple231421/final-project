@@ -19,6 +19,7 @@
 ---
 
 📝 주요 기능
+
 👥 회원/로그인
 Spring Security + OAuth2 (Google, Kakao 로그인 지원)
 
@@ -46,8 +47,6 @@ Spring Security + OAuth2 (Google, Kakao 로그인 지원)
 
 🤖 챗봇/AI
 OpenAI API 연동 (ChatController)
-
-Kakao 챗봇 API 연동
 
 📧 이메일 발송
 Gmail SMTP 기반 인증/알림 메일 전송
