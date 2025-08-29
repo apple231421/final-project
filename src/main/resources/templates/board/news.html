@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>카드뉴스 목록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--hospital-light);
+            color: var(--hospital-dark);
+            margin: 0;
+        }
+        .container {
+            margin: 120px auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 800;
+            color: var(--hospital-primary);
+            font-size: 2rem;
+            letter-spacing: -1px;
+        }
+        .card {
+            border: 1.5px solid var(--hospital-border);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+
+        .card a{
+            text-decoration:none;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--hospital-shadow-lg);
+        }
+        
+        /* 클릭 가능한 카드 스타일 */
+        .clickable-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .clickable-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--hospital-shadow-lg);
+        }
+        
+        .clickable-card:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--hospital-shadow-lg);
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--hospital-border);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-title {
+            font-weight: 700;
+            color: var(--hospital-dark);
+            height: 50px;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+        .card-text {
+            color: var(--hospital-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .card-text i {
+            color: var(--hospital-primary);
+            margin-right: 0.5rem;
+        }
+        .card-footer {
+            background: var(--hospital-light);
+            border-top: 1px solid var(--hospital-border);
+            padding: 1rem 1.5rem;
+        }
+        .btn, .btn-primary {
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+        }
+
+        .btn-outline-primary {
+            background: #fff;
+            color: var(--hospital-primary);
+            border: 1.5px solid var(--hospital-primary);
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        @media (max-width: 991.98px) {
+            .container {
+                margin: 60px 0 0 0;
+                padding: 0 8px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .card-body {
+                padding: 1rem;
+            }
+            .card-title {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 class="mb-4" th:text="#{news.title}">뉴스</h1>
+    <a class="btn btn-primary mb-3" th:if="${#authorization.expression('hasRole(''A'')')}" th:href="@{/board/news/write}"><i class="bi bi-plus-circle"></i><p th:text="#{news.writeNews}">카드뉴스 등록</p></a>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col" th:each="news : ${newsList}">
+            <div class="card h-100 clickable-card" 
+                 th:data-url="@{/board/news/{id}(id=${news.id})}"
+                 style="cursor: pointer; position: relative;">
+                <img th:if="${news.filePath != null}" th:src="@{${news.filePath}}" class="card-img-top" alt="썸네일">
+                <img th:if="${news.filePath == null}" src="/images/notice/test.jpg" class="card-img-top" alt="기본 이미지">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${news.title}"></h5>
+                    <p class="card-text">
+                        <i class="bi bi-person"></i>
+                        <th:block th:with="firstName=${news.authors[0].name}, otherCount=${news.authors.size() - 1}, labelAndOthers=#{label.and_others}, labelPeople=#{label.people}">
+                            <span th:if="${news.authors != null and !news.authors.isEmpty()}" th:text="|${firstName}${otherCount > 0 ? ' ' + labelAndOthers + ' ' + otherCount + labelPeople : ''}|">작성자명</span>
+                            <span th:if="${news.authors == null or news.authors.isEmpty()}">작성자 없음</span>
+                        </th:block>
+                    </p>
+                    <p class="card-text"><i class="bi bi-calendar"></i> <span th:text="${#temporals.format(news.createdAt, 'yyyy-MM-dd')}"></span></p>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="bi bi-mouse"></i><span th:text="#{news.click}"> 클릭하여 상세보기</span>
+                        </small>
+                        <button class="btn btn-outline-primary btn-sm" 
+                                th:onclick="|window.open('@{/board/news/{id}(id=${news.id})}', '_blank'); event.stopPropagation(); return false;|">
+                            <i class="bi bi-box-arrow-up-right"></i><span th:text="#{news.blink}"> 새 창</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script>
+    // 키보드 접근성 및 향상된 사용자 경험
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.clickable-card');
+        
+        cards.forEach(card => {
+            // 클릭 이벤트
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleCardClick(card);
+            });
+            
+            // 우클릭 메뉴 (새 탭에서 열기)
+            card.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const url = card.getAttribute('data-url');
+                if (url) {
+                    window.open(url, '_blank');
+                }
+            });
+        });
+    });
+    
+    // 카드 클릭 처리 함수
+    function handleCardClick(card) {
+        const url = card.getAttribute('data-url');
+        if (!url) return;
+        window.location.href = url;
+    }
+</script>
+
+</body>
+</html>

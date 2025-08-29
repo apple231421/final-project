@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{doctors.view.title}">의료진 프로필</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin-top: 80px;
+    }
+    .profile-card {
+      max-width: 600px;
+      margin: 2.5rem auto;
+      padding: 2.5rem 2rem 2rem 2rem;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      border: 1px solid #e9ecef;
+    }
+    .profile-img {
+      width: 180px;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 3px solid #e3eafc;
+      box-shadow: 0 2px 8px rgba(0,123,255,0.08);
+      background: #f8f9fa;
+      margin-bottom: 1.2rem;
+    }
+    .profile-card h2 {
+      color: #007bff;
+      font-weight: 700;
+      font-size: 1.7rem;
+      margin-bottom: 1.5rem;
+    }
+    .list-group-item {
+      background: transparent;
+      border: none;
+      font-size: 1.08rem;
+      padding-left: 0;
+      padding-right: 0;
+      margin-bottom: 0.2rem;
+    }
+    .list-group-item strong {
+      color: #007bff;
+      font-weight: 500;
+      min-width: 70px;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border: none;
+      border-radius: 15px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 0.7rem 2.2rem;
+      margin-right: 0.5rem;
+      box-shadow: 0 3px 10px rgba(0,123,255,0.13);
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0056b3, #007bff);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .btn-outline-primary {
+      border-radius: 15px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 0.7rem 2.2rem;
+      transition: all 0.2s;
+    }
+    .btn-outline-primary:hover {
+      background: #007bff;
+      color: #fff;
+      border-color: #007bff;
+      transform: translateY(-1px);
+    }
+    @media (max-width: 768px) {
+      .profile-card {
+        padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+      }
+      .profile-img {
+        width: 110px;
+        height: 120px;
+      }
+      .profile-card h2 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+  <div class="profile-card text-center">
+    <img th:if="${doctor.profileImage}"
+         th:src="@{${doctor.profileImage}}"
+         alt="프로필 사진"
+         class="profile-img"
+         onerror="this.src='/images/default-doctor.jpg'">
+
+    <h2 class="fw-bold mb-3" th:text="#{doctors.view.profile.title(${doctor.name})}">의사 이름</h2>
+
+    <ul class="list-group list-group-flush text-start mb-3">
+
+
+      <li class="list-group-item">
+        <strong><i class="fas fa-hospital me-1"></i>
+          <span th:text="#{doctors.view.department}">진료과</span>:
+        </strong>
+        <span th:text="${
+    doctor.department != null
+      ? (#locale.language == 'en'
+          ? (doctor.department.nameEn != null ? doctor.department.nameEn : doctor.department.name)
+          : doctor.department.name)
+      : null
+  }">내과</span>
+      </li>
+
+      <li class="list-group-item">
+        <strong><i class="fas fa-user-tag me-1"></i>
+          <span th:text="#{doctors.view.position}">직책</span>:
+        </strong>
+        <span th:text="${doctor.position}">교수</span>
+      </li>
+
+      <li class="list-group-item">
+        <strong><i class="fas fa-envelope me-1"></i>
+          <span th:text="#{doctors.view.email}">이메일</span>:
+        </strong>
+        <span th:text="${doctor.email}">email@example.com</span>
+      </li>
+
+      <li class="list-group-item">
+        <strong><i class="fas fa-info-circle me-1"></i>
+          <span th:text="#{doctors.view.description}">소개</span>:
+        </strong>
+        <span th:text="${
+    #locale.language == 'en'
+      ? (doctor.descriptionEn != null ? doctor.descriptionEn : doctor.description)
+      : doctor.description
+  }">의사 소개글</span>
+      </li>
+
+    </ul>
+
+    <a th:if="${currentUser == null or (!currentUser.email.equals(doctor.email) and !currentUser.role.toString().equals('A'))}"
+       th:href="@{/reservation(
+        dept=${#locale.language == 'en' ? doctor.department.nameEn : doctor.department.name},
+        doctorId=${doctor.id},
+        doctorName=${doctor.name},
+        doctorImage=${doctor.profileImage != null ? doctor.profileImage : '/images/default-doctor.jpg'}
+   )}"
+       class="btn btn-primary">
+      <i class="fas fa-calendar-check me-1"></i>
+      <span th:text="#{doctors.view.reserve}">예약하기</span>
+    </a>
+
+
+
+
+    <a href="/doctors" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-1"></i><span th:text="#{doctors.view.back}">목록으로 돌아가기</span></a>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

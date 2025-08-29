@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="#{terms.title}">이용약관</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Nanum Gothic', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .terms-container {
+      max-width: 900px;
+      margin: 120px auto 60px;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+    h2 {
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+    h4 {
+      margin-top: 30px;
+      font-weight: bold;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    p {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header Fragment -->
+<div th:replace="fragments/header :: header"></div>
+
+<!-- Main Content -->
+<div class="terms-container">
+  <h2 th:text="#{footer.terms}">이용약관</h2>
+
+  <h4 th:text="#{terms.section1.title}">제1조 (목적)</h4>
+  <p th:text="#{terms.section1.desc}">이 약관은 더좋은 병원...</p>
+
+  <h4 th:text="#{terms.section2.title}">제2조 (정의)</h4>
+  <p th:text="#{terms.section2.desc}">이 약관에서 사용하는...</p>
+  <ul>
+    <li th:text="#{terms.section2.item1}">“이용자”란 병원이...</li>
+    <li th:text="#{terms.section2.item2}">“서비스”란 병원이...</li>
+  </ul>
+
+  <h4 th:text="#{terms.section3.title}">제3조 (약관의 효력 및 변경)</h4>
+  <p th:text="#{terms.section3.desc}">본 약관은 병원 웹사이트에...</p>
+
+  <h4 th:text="#{terms.section4.title}">제4조 (서비스 이용)</h4>
+  <p th:text="#{terms.section4.desc}">이용자는 본 약관에 따라...</p>
+
+  <h4 th:text="#{terms.section5.title}">제5조 (이용자의 의무)</h4>
+  <p th:text="#{terms.section5.desc}">이용자는 다음의 행위를...</p>
+  <ul>
+    <li th:text="#{terms.section5.item1}">타인의 개인정보 도용</li>
+    <li th:text="#{terms.section5.item2}">허위 정보의 제공</li>
+    <li th:text="#{terms.section5.item3}">서비스의 안정적 운영 방해</li>
+  </ul>
+
+  <h4 th:text="#{terms.section6.title}">제6조 (개인정보 보호)</h4>
+  <p th:text="#{terms.section6.desc}">병원은 이용자의 개인정보를...</p>
+
+  <h4 th:text="#{terms.section7.title}">제7조 (면책조항)</h4>
+  <p th:text="#{terms.section7.desc}">병원은 다음의 경우...</p>
+  <ul>
+    <li th:text="#{terms.section7.item1}">이용자의 귀책사유로 인한 서비스 이용 장애</li>
+    <li th:text="#{terms.section7.item2}">천재지변 등 불가항력적인 사유</li>
+  </ul>
+
+  <p class="mt-5 text-muted small" th:text="#{terms.notice}">※ 본 약관은 2025년 1월 1일부터 적용됩니다.</p>
+</div>
+
+<!-- Footer Fragment -->
+<div th:replace="fragments/footer :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

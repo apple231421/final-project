@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{doctors.profile.title}">의사 프로필</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="container py-5">
+<h2 class="mb-4" th:text="#{doctors.profile.title}">의사 프로필</h2>
+
+<div class="card mb-4">
+  <div class="row g-0">
+    <div class="col-md-4 text-center p-3">
+      <img th:src="@{${doctor.profileImage}}" class="img-fluid rounded" style="max-height: 250px;"
+           th:alt="#{doctors.profile.image}" onerror="this.src='/img/default-doctor.jpg'">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h4 class="card-title" th:text="${doctor.name}">의사 이름</h4>
+        <p class="card-text"><strong th:text="#{doctors.profile.position}">직책:</strong> <span th:text="${doctor.position}"></span></p>
+        <p class="card-text"><strong th:text="#{doctors.profile.department}">진료과:</strong> <span th:text="${doctor.department}"></span></p>
+        <p class="card-text"><strong th:text="#{email}">이메일:</strong> <span th:text="${doctor.email}"></span></p>
+        <p class="card-text"><strong th:text="#{phone}">연락처:</strong> <span th:text="${doctor.phone}"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <h5 th:text="#{doctors.profile.intro}">의사 소개</h5>
+  <p th:text="${doctor.description != null && !doctor.description.isEmpty() ? doctor.description : #{doctors.profile.no.intro}}">소개글이 없습니다.</p>
+</div>
+
+<a th:href="@{/doctors}" class="btn btn-secondary mt-3" th:text="#{back.to.list}">목록으로 돌아가기</a>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

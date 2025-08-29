@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{notice.list.title}">공지사항</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    :root {
+      --hospital-primary: #2563eb;
+      --hospital-secondary: #1e40af;
+      --hospital-accent: #3b82f6;
+      --hospital-success: #059669;
+      --hospital-danger: #dc2626;
+      --hospital-warning: #d97706;
+      --hospital-info: #0891b2;
+      --hospital-light: #f8fafc;
+      --hospital-dark: #1e293b;
+      --hospital-gray: #64748b;
+      --hospital-border: #e2e8f0;
+      --hospital-shadow: rgba(0, 0, 0, 0.1);
+      --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+    }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--hospital-light);
+      color: var(--hospital-dark);
+      margin: 0;
+    }
+    .container {
+      margin: 120px auto;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 800;
+      color: var(--hospital-primary);
+      font-size: 2rem;
+      letter-spacing: -1px;
+    }
+    table.table {
+      font-size: 1rem;
+      background-color: #fff;
+      border-collapse: collapse;
+      border-top: 2.5px solid var(--hospital-primary);
+      box-shadow: 0 4px 20px var(--hospital-shadow);
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+    }
+    table.table th, table.table td {
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1.5px solid var(--hospital-border);
+      padding: 14px 8px;
+    }
+    table.table thead th {
+      background: linear-gradient(135deg, var(--hospital-primary) 60%, var(--hospital-accent) 100%);
+      font-weight: 700;
+      color: #fff;
+      border-bottom: 2px solid var(--hospital-primary);
+    }
+    table.table tbody tr:hover {
+      background-color: #e8f0fe;
+    }
+    table.table td a {
+      color: var(--hospital-dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    table.table td a:hover {
+      color: var(--hospital-primary);
+      text-decoration: underline;
+    }
+    .burgundy-btn, .btn-primary {
+      background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px var(--hospital-shadow);
+    }
+    .burgundy-btn:hover, .btn-primary:hover {
+      background: linear-gradient(135deg, var(--hospital-accent), var(--hospital-primary));
+      color: #fff;
+      box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+    }
+    .btn-outline-secondary {
+      background: #fff;
+      color: var(--hospital-primary);
+      border: 1.5px solid var(--hospital-primary);
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-outline-secondary:hover {
+      background: var(--hospital-primary);
+      color: #fff;
+    }
+    .category-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 50px;
+      color: #fff;
+      margin-bottom: 12px;
+      background: var(--hospital-primary);
+    }
+    .badge-general { background: #6f42c1; }
+    .badge-event { background: #0d6efd; }
+    .badge-guide { background: #ffc107; color: #222; }
+    .badge-health { background: #20c997; }
+    .badge-staff { background: #fd7e14; }
+    .pagination .page-item.active .page-link {
+      background: var(--hospital-primary);
+      border-color: var(--hospital-primary);
+      color: #fff;
+    }
+    .pagination .page-item.disabled .page-link {
+      color: #ccc;
+      pointer-events: none;
+      background-color: #f8f9fa;
+    }
+    form.d-flex select,
+    form.d-flex input {
+      min-width: 160px;
+    }
+    .text-end {
+      margin-top: 20px;
+    }
+    @media (max-width: 991.98px) {
+      .container {
+        margin: 60px 0 0 0;
+        padding: 0 8px;
+      }
+      table.table th, table.table td {
+        padding: 8px 2px;
+        font-size: 0.95rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+  <h2 th:text="#{notice.list.title}">공지사항</h2>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="mb-3">
+      <span th:text="#{notice.list.count}"></span>
+      <span> : </span>
+      <span th:text="${noticePage.totalElements}"></span>
+    </div>
+
+    <form class="d-flex justify-content-end mb-3" method="get" th:action="@{/board/notice}">
+      <select name="searchType" class="form-select w-auto me-2" id="searchType">
+        <option th:text="#{notice.list.selectCategory.title}" value="title" th:selected="${searchType == 'title'}">제목</option>
+        <option th:text="#{notice.list.selectCategory.category}" value="category" th:selected="${searchType == 'category'}">카테고리</option>
+      </select>
+
+      <div id="keywordContainer" class="me-2">
+        <input type="text" name="keyword" class="form-control"
+               th:if="${searchType == null or searchType == 'title'}"
+               th:value="${keyword}">
+        <select name="keyword" class="form-select"
+                th:if="${searchType == 'category'}">
+          <option th:text="#{notice.list.selectCategory.generalNotice}"  value="일반공지" th:selected="${keyword == '일반공지'}">일반공지</option>
+          <option th:text="#{notice.list.selectCategory.event}" value="이벤트" th:selected="${keyword == '이벤트'}">이벤트</option>
+          <option th:text="#{notice.list.selectCategory.siteGuide}" value="사이트안내" th:selected="${keyword == '사이트안내'}">사이트안내</option>
+          <option th:text="#{notice.list.selectCategory.medicalTips}" value="의료상식" th:selected="${keyword == '의료상식'}">의료상식</option>
+          <option th:text="#{notice.list.selectCategory.mvp}" value="이달의 우수사원" th:selected="${keyword == '이달의 우수사원'}">이달의 우수사원</option>
+        </select>
+      </div>
+
+      <button class="btn burgundy-btn" type="submit" th:text="#{notice.list.searchButton}">검색</button>
+    </form>
+  </div>
+
+  <div class="mb-3 text-end" sec:authorize="hasRole('A')">
+    <a th:href="@{/board/notice_writeForm}" class="btn btn-primary" th:text="#{notice.write}">글쓰기</a> <!-- i18n 수정 -->
+    <a th:href="@{/board/notice_trash}" class="btn btn-outline-secondary ms-2" th:text="#{notice.deleted}">삭제된 글 보기</a> <!-- i18n 수정 -->
+  </div>
+
+  <table class="table table-hover text-center align-middle">
+    <thead>
+    <tr>
+      <th th:text="#{notice.list.num}">번호</th>
+      <th th:text="#{notice.list.postCategory}">분류</th>
+      <th th:text="#{notice.list.postTitle}">제목</th>
+      <th th:text="#{notice.list.postCreatedDate}">등록일</th>
+      <th th:text="#{press.trash.restorationordelete}" sec:authorize="hasRole('A')">삭제/복구</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="notice, stat : ${noticePage.content}">
+      <td th:text="${stat.count}">1</td>
+      <td>
+        <span class="category-badge"
+              th:attr="data-category=${notice.category}">
+          <span th:if="${notice.category == '일반공지'}"
+                th:text="#{notice.list.selectCategory.generalNotice}">일반공지</span>
+          <span th:if="${notice.category == '이벤트'}"
+                th:text="#{notice.list.selectCategory.event}">이벤트</span>
+          <span th:if="${notice.category == '사이트안내'}"
+                th:text="#{notice.list.selectCategory.siteGuide}">사이트 안내</span>
+          <span th:if="${notice.category == '의료상식'}"
+                th:text="#{notice.list.selectCategory.medicalTips}">의료상식</span>
+          <span th:if="${notice.category == '이달의 우수사원'}"
+                th:text="#{notice.list.selectCategory.mvp}">이달의 우수사원</span>
+          <span th:unless="${notice.category == '일반공지' or
+                            notice.category == '이벤트' or
+                            notice.category == '사이트안내' or
+                            notice.category == '의료상식' or
+                            notice.category == '이달의 우수사원'}"
+                th:text="${notice.category}">기타</span>
+        </span>
+      </td>
+      <td>
+        <a th:href="@{'/board/notice_view/' + ${notice.id}}">
+          <span th:if="${notice.deleted}" style="color:#dc2626;"><del th:text="${notice.title}"></del></span>
+          <span th:unless="${notice.deleted}"
+                th:text="${#locale.language == 'en'} ? ${notice.titleEn} : ${notice.title}"></span>
+        </a>
+      </td>
+      <td th:text="${#temporals.format(notice.createdDate, 'yyyy-MM-dd')}">2025-07-10</td>
+      <td>
+        <!-- 삭제 버튼: 삭제되지 않은 공지 + 관리자만 -->
+        <form th:if="!${notice.deleted}" th:action="@{'/board/notice/delete/' + ${notice.id}}" method="post" style="display:inline;" sec:authorize="hasRole('A')">
+          <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button type="submit" class="btn btn-danger btn-sm" th:text="#{news.delete}">삭제</button>
+        </form>
+        <!-- 복구 버튼: 삭제된 공지에만 -->
+        <form th:if="${notice.deleted}" th:action="@{/board/notice/restore/{id}(id=${notice.id})}" method="post" style="display:inline;">
+          <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button class="btn btn-secondary btn-sm" th:text="#{notice.trash.restoration}" onclick="return confirm('복구하시겠습니까?')">복구</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <nav th:if="${noticePage.totalPages > 0}" aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" th:classappend="${noticePage.first} ? 'disabled'">
+        <a th:text="#{notice.list.prev}" th:href="@{/board/notice(page=${noticePage.number == 0 ? 0 : noticePage.number - 1})}" class="page-link">이전</a>
+      </li>
+      <li th:each="i : ${#numbers.sequence(1, noticePage.totalPages)}"
+          class="page-item"
+          th:classappend="${i == noticePage.number + 1} ? 'active'">
+        <a th:href="@{/board/notice(page=${i - 1})}" th:text="${i}" class="page-link"></a>
+      </li>
+      <li class="page-item" th:classappend="${noticePage.last} ? 'disabled'">
+        <a th:text="#{notice.list.next}" th:href="@{/board/notice(page=${noticePage.number + 1})}" class="page-link">다음</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- 다국어 메시지를 JS로 전달 -->
+<script th:inline="javascript"> <!-- i18n 수정 -->
+/*<![CDATA[*/
+const i18n = {
+  general: [[#{notice.list.selectCategory.generalNotice}]],
+event: [[#{notice.list.selectCategory.event}]],
+guide: [[#{notice.list.selectCategory.siteGuide}]],
+medical: [[#{notice.list.selectCategory.medicalTips}]],
+mvp: [[#{notice.list.selectCategory.mvp}]]
+};
+/*]]>*/
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchTypeSelect = document.getElementById("searchType");
+    const keywordContainer = document.getElementById("keywordContainer");
+
+    function renderKeywordField(type) {
+      let html = '';
+      if (type === 'category') {
+        html = `
+          <select name="keyword" class="form-select" style="width: 241px">
+            <option value="일반공지">${i18n.general}</option>
+            <option value="이벤트">${i18n.event}</option>
+            <option value="사이트안내">${i18n.guide}</option>
+            <option value="의료상식">${i18n.medical}</option>
+            <option value="이달의 우수사원">${i18n.mvp}</option>
+          </select>
+        `;
+      } else {
+        html = `<input type="text" name="keyword" class="form-control">`;
+      }
+      keywordContainer.innerHTML = html;
+    }
+
+    renderKeywordField(searchTypeSelect.value);
+
+    searchTypeSelect.addEventListener("change", function () {
+      renderKeywordField(this.value);
+    });
+
+    document.querySelectorAll('.category-badge').forEach(el => {
+      const category = el.getAttribute('data-category');
+      switch (category) {
+        case '일반공지': el.classList.add('badge-general'); break;
+        case '이벤트': el.classList.add('badge-event'); break;
+        case '사이트안내': el.classList.add('badge-guide'); break;
+        case '의료상식': el.classList.add('badge-health'); break;
+        case '이달의 우수사원': el.classList.add('badge-staff'); break;
+      }
+    });
+
+  });
+</script>
+
+</body>
+</html>

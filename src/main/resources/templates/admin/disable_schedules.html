@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{admin.disable.schedules.title}">진료 불가능일 관리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            padding: 8rem 0;
+        }
+        
+        .page-title {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            background: white;
+            margin-bottom: 2rem;
+        }
+        
+        .card-header {
+            background: #3498db;
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1.5rem;
+        }
+        
+        .doctor-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .doctor-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .doctor-info {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .doctor-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .doctor-dept {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .date-controls {
+            padding: 1rem;
+        }
+        
+        .date-input {
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        .date-input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .btn {
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            border-color: #3498db;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            border-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            border-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            border-color: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+            border-color: #e67e22;
+        }
+        
+        .disable-dates {
+            padding: 1rem;
+            background: #fff;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .date-tag {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            margin: 0.2rem;
+            font-size: 0.9rem;
+        }
+        
+        .date-tag .remove-date {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .alert {
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container main-container">
+    <h1 class="page-title">
+        <i class="fas fa-calendar-times me-3"></i><span th:text="#{admin.disable.schedules.title}">진료 불가능일 관리</span>
+    </h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-user-md me-2"></i><span th:text="#{admin.disable.schedules.subtitle}">의사별 진료 불가능일 관리</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <!-- 검색 기능 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form th:action="@{/admin/disable-schedules}" method="get" class="d-flex">
+                        <input type="text" name="searchName" th:value="${searchName}"
+                               class="form-control me-2" th:placeholder="#{admin.disable.schedules.search.placeholder}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <a th:if="${searchName}" th:href="@{/admin/disable-schedules}" class="btn btn-secondary ms-2"
+                           th:title="#{admin.disable.schedules.search.clear}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </form>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="text-muted" th:text="#{admin.disable.schedules.total.doctors(${totalElements})}">
+                        총 0명의 의사
+                    </span>
+                </div>
+            </div>
+
+            <!-- 검색 결과가 없을 때 -->
+            <div th:if="${#lists.isEmpty(doctors)}" class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted" th:text="#{admin.disable.schedules.no.results}">검색 결과가 없습니다.</h5>
+                <p class="text-muted" th:text="#{admin.disable.schedules.no.results.desc}">다른 검색어를 입력해보세요.</p>
+            </div>
+
+            <div th:each="doctor : ${doctors}" class="doctor-card">
+                <div class="doctor-info">
+                    <div class="doctor-name" th:text="${doctor.name}">의사명</div>
+                    <div class="doctor-dept" th:text="${#locale.language == 'en'} ? ${doctor.department.nameEn} : ${doctor.department.name}">진료과</div>
+                </div>
+
+                <div class="date-controls">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control date-input flatpickr"
+                                   th:attr="data-doctor-id=${doctor.id}"
+                                   placeholder="날짜 선택">
+                        </div>
+                        <div class="col-md-8">
+                            <button class="btn btn-primary btn-sm add-date-btn"
+                                    th:attr="data-doctor-id=${doctor.id}">
+                                <i class="fas fa-plus me-1"></i><span th:text="#{admin.disable.schedules.add}">추가</span>
+                            </button>
+                            <button class="btn btn-warning btn-sm clear-all-btn"
+                                    th:attr="data-doctor-id=${doctor.id}">
+                                <i class="fas fa-trash me-1"></i><span th:text="#{admin.disable.schedules.clear.all}">전체 삭제</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="disable-dates">
+                    <h6 class="mb-2">
+                        <i class="fas fa-calendar me-1"></i><span th:text="#{admin.disable.schedules.list}">진료 불가능일 목록</span>
+                    </h6>
+                    <div class="loading" th:attr="data-doctor-id=${doctor.id}">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2" th:text="#{admin.disable.schedules.loading}">Loading...</span>
+                    </div>
+                    <div class="date-list" th:attr="data-doctor-id=${doctor.id}">
+                        <!-- 날짜 태그들이 여기에 동적으로 추가됩니다 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 페이징 네비게이션 -->
+            <div th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                <nav th:aria-label="#{admin.disable.schedules.pagination.label}">
+                    <ul class="pagination">
+                        <!-- 이전 페이지 -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:if="${currentPage > 0}"
+                               th:href="@{/admin/disable-schedules(page=${currentPage - 1}, size=${size}, searchName=${searchName})}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <span class="page-link" th:if="${currentPage == 0}">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                        </li>
+
+                        <!-- 페이지 번호들 -->
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/disable-schedules(page=${pageNum}, size=${size}, searchName=${searchName})}"
+                               th:text="${pageNum + 1}">1</a>
+                        </li>
+
+                        <!-- 다음 페이지 -->
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:if="${currentPage < totalPages - 1}"
+                               th:href="@{/admin/disable-schedules(page=${currentPage + 1}, size=${size}, searchName=${searchName})}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                            <span class="page-link" th:if="${currentPage == totalPages - 1}">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a href="/myPage" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i><span th:text="#{admin.disable.schedules.back.to.mypage}">마이페이지로 돌아가기</span>
+        </a>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    const lang = /*[['${#locale.language}']]*/ 'ko';
+    
+    // 다국어 메시지들을 JavaScript 변수로 설정
+    const messages = {
+        selectDate: /*[[${msgSelectDate}]]*/ '날짜를 선택해주세요.',
+        confirmClearAll: /*[[${msgConfirmClearAll}]]*/ '모든 진료 불가능일을 삭제하시겠습니까?',
+        confirmRemove: /*[[${msgConfirmRemove}]]*/ '이 날짜를 진료 불가능일에서 제거하시겠습니까?',
+        errorLoad: /*[[${msgErrorLoad}]]*/ '진료 불가능일을 불러오는 중 오류가 발생했습니다.',
+        errorAdd: /*[[${msgErrorAdd}]]*/ '진료 불가능일 추가 중 오류가 발생했습니다.',
+        errorRemove: /*[[${msgErrorRemove}]]*/ '진료 불가능일 삭제 중 오류가 발생했습니다.',
+        noDates: /*[[${msgNoDates}]]*/ '등록된 진료 불가능일이 없습니다.'
+    };
+
+    // 쿠키에서 locale 가져오기
+    function getLocaleFromCookie() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'lang') {
+                return value;
+            }
+        }
+        return lang; // 서버에서 설정된 locale 사용
+    }
+
+    // 모든 flatpickr 재초기화
+    function reinitializeAllFlatpickrs() {
+        document.querySelectorAll('.flatpickr').forEach(input => {
+            const doctorId = input.getAttribute('data-doctor-id');
+            initFlatpickr(doctorId);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 페이지 로드 시 각 의사의 진료 불가능일 로드
+        loadAllDoctorDisableDates();
+
+        // 날짜 추가 버튼 이벤트
+        document.querySelectorAll('.add-date-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const doctorId = this.getAttribute('data-doctor-id');
+                const dateInput = document.querySelector(`input[data-doctor-id="${doctorId}"]`);
+                const date = dateInput.value;
+
+                if (!date) {
+                    alert(messages.selectDate);
+                    return;
+                }
+                showLoadingSpinner(doctorId); // 로딩 표시
+                addDisableDate(doctorId, [date]);
+                dateInput.value = '';
+            });
+        });
+
+        // 전체 삭제 버튼 이벤트
+        document.querySelectorAll('.clear-all-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const doctorId = this.getAttribute('data-doctor-id');
+                const dateInput = document.querySelector(`input[data-doctor-id="${doctorId}"]`);
+                if (confirm(messages.confirmClearAll)) {
+                    if (dateInput) {
+                        dateInput.disabled = true;
+                    }
+                    removeAllDisableDates(doctorId);
+                }
+            });
+        });
+    });
+
+    // 모든 의사의 진료 불가능일 로드
+    function loadAllDoctorDisableDates() {
+        document.querySelectorAll('.doctor-card').forEach(card => {
+            const doctorId = card.querySelector('.add-date-btn').getAttribute('data-doctor-id');
+            loadDoctorDisableDates(doctorId);
+        });
+    }
+
+    // 특정 의사의 진료 불가능일 로드
+    function loadDoctorDisableDates(doctorId) {
+        const loadingEl = document.querySelector(`.loading[data-doctor-id="${doctorId}"]`);
+        const dateListEl = document.querySelector(`.date-list[data-doctor-id="${doctorId}"]`);
+
+        loadingEl.style.display = 'block';
+        dateListEl.innerHTML = '';
+
+        fetch(`/admin/doctor/${doctorId}/disable-dates`)
+            .then(response => response.json())
+            .then(dates => {
+                loadingEl.style.display = 'none';
+                displayDisableDates(doctorId, dates);
+            })
+            .catch(error => {
+                loadingEl.style.display = 'none';
+                console.error('Error loading disable dates:', error);
+                showAlert(messages.errorLoad, 'danger');
+            });
+    }
+
+    const doctorDisableDatesMap = new Map();
+
+    // 진료 불가능일 표시
+    function displayDisableDates(doctorId, dates) {
+        const dateListEl = document.querySelector(`.date-list[data-doctor-id="${doctorId}"]`);
+
+        if (dates.length === 0) {
+            dateListEl.innerHTML = `<p class="text-muted">${messages.noDates}</p>`;
+        } else {
+            dateListEl.innerHTML = dates.map(date => `
+                <span class="date-tag">
+                    ${formatDate(date)}
+                    <span class="remove-date" onclick="removeDisableDate('${doctorId}', '${date}')">&times;</span>
+                </span>
+            `).join('');
+        }
+        // 날짜 목록을 Map에 저장 (중복 체크용)
+        doctorDisableDatesMap.set(doctorId, new Set(dates));
+        initFlatpickr(doctorId);
+    }
+
+    function initFlatpickr(doctorId) {
+        const input = document.querySelector(`.flatpickr[data-doctor-id="${doctorId}"]`);
+        const disabledDatesSet = doctorDisableDatesMap.get(doctorId);
+        const disabledDates = disabledDatesSet ? Array.from(disabledDatesSet) : [];
+
+        // 현재 쿠키에서 locale 가져오기
+        const currentLocale = getLocaleFromCookie();
+
+        if (input._flatpickr) {
+            input._flatpickr.destroy();
+        }
+
+        flatpickr(input, {
+            dateFormat: "Y-m-d",
+            disable: disabledDates,
+            locale: currentLocale === 'ko' ? flatpickr.l10ns.ko : 'default',
+            minDate: "today"
+        });
+    }
+
+    // 날짜 포맷팅
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        // 현재 쿠키의 locale에 따라 날짜 포맷 결정
+        const currentLocale = getLocaleFromCookie();
+        const locale = currentLocale === 'ko' ? 'ko-KR' : 'en-US';
+        return date.toLocaleDateString(locale, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    // 진료 불가능일 추가
+    function addDisableDate(doctorId, dates) {
+        const input = document.querySelector(`input[data-doctor-id="${doctorId}"]`);
+        const button = document.querySelector(`.add-date-btn[data-doctor-id="${doctorId}"]`);
+        const clearButton = document.querySelector(`.clear-all-btn[data-doctor-id="${doctorId}"]`);
+        if (input) input.disabled = true;
+        if (button) button.disabled = true;
+        if (clearButton) clearButton.disabled = true;
+
+        fetch(`/admin/doctor/${doctorId}/disable-dates`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dates)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showAlert(result.message, 'success');
+                loadDoctorDisableDates(doctorId);
+            } else {
+                showAlert(result.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding disable date:', error);
+            showAlert(messages.errorAdd, 'danger');
+        })
+        .finally(() => {
+            if (input) input.disabled = false;
+            if (button) button.disabled = false;
+            if (clearButton) clearButton.disabled = false;
+        });
+    }
+
+    // 진료 불가능일 삭제
+    function removeDisableDate(doctorId, date) {
+        if (confirm(messages.confirmRemove)) {
+            const input = document.querySelector(`input[data-doctor-id="${doctorId}"]`);
+            const button = document.querySelector(`.add-date-btn[data-doctor-id="${doctorId}"]`);
+            if (input) input.disabled = true;
+            if (button) button.disabled = true;
+
+            fetch(`/admin/doctor/${doctorId}/disable-dates`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify([date])
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    loadDoctorDisableDates(doctorId);
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error removing disable date:', error);
+                showAlert(messages.errorRemove, 'danger');
+            })
+            .finally(() => {
+                if (input) input.disabled = false;
+                if (button) button.disabled = false;
+            });
+        }
+    }
+
+    // 모든 진료 불가능일 삭제
+    function removeAllDisableDates(doctorId) {
+        const input = document.querySelector(`input[data-doctor-id="${doctorId}"]`);
+        const addButton = document.querySelector(`.add-date-btn[data-doctor-id="${doctorId}"]`);
+        const clearButton = document.querySelector(`.clear-all-btn[data-doctor-id="${doctorId}"]`);
+        if (input) input.disabled = true;
+        if (addButton) addButton.disabled = true;
+        if (clearButton) clearButton.disabled = true;
+
+        fetch(`/admin/doctor/${doctorId}/disable-dates/all`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showAlert(result.message, 'success');
+                loadDoctorDisableDates(doctorId);
+            } else {
+                showAlert(result.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing all disable dates:', error);
+            showAlert(messages.errorRemove, 'danger');
+        })
+        .finally(() => {
+            if (input) input.disabled = false;
+            if (addButton) addButton.disabled = false;
+            if (clearButton) clearButton.disabled = false;
+        });
+    }
+
+    // 알림 표시
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        const container = document.querySelector('.main-container');
+        container.insertBefore(alertDiv, container.firstChild);
+
+        // 3초 후 자동으로 사라지게
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 3000);
+    }
+
+    function showLoadingSpinner(doctorId) {
+        const loadingEl = document.querySelector(`.loading[data-doctor-id="${doctorId}"]`);
+        loadingEl.style.display = 'inline-flex'; // 더 잘 보이도록 block → inline-flex
+    }
+</script>
+</body>
+</html> 

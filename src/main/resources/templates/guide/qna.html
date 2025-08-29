@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{qna.title}">1:1 고객문의 홈</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            margin-top: 100px;
+            background: #f7fafd;
+        }
+        .qna-home-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .qna-home-card {
+            background: #fff;
+            border-radius: 1.2rem;
+            box-shadow: 0 2px 16px rgba(25, 118, 210, 0.07);
+            border: none;
+        }
+        .qna-home-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1976d2;
+            margin-bottom: 1.2rem;
+            letter-spacing: -1px;
+        }
+        .qna-home-text {
+            color: #333;
+            font-size: 1.08rem;
+            margin-bottom: 2rem;
+        }
+        .qna-home-btns .btn {
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+            padding: 0.6rem 2.2rem;
+        }
+        .qna-home-btns .btn-primary {
+            background: #1976d2;
+            border: none;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+        }
+        .qna-home-btns .btn-primary:hover {
+            background: #125ea7;
+        }
+        .qna-home-btns .btn-outline-secondary {
+            border: 1.5px solid #e3f0fc;
+            color: #1976d2;
+            background: #fafdff;
+        }
+        .qna-home-btns .btn-outline-secondary:hover {
+            background: #e3f0fc;
+            color: #125ea7;
+        }
+        .qna-home-btns .btn-warning {
+            background: #ffe082;
+            color: #1976d2;
+            border: none;
+        }
+        .qna-home-btns .btn-warning:hover {
+            background: #ffd54f;
+            color: #125ea7;
+        }
+        @media (max-width: 600px) {
+            .qna-home-container { padding: 0 0.5rem; }
+            .qna-home-title { font-size: 1.08rem; }
+            .qna-home-text { font-size: 0.98rem; }
+            .qna-home-btns .btn { font-size: 0.97rem; padding: 0.5rem 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <div class="container my-5 qna-home-container">
+        <div class="qna-home-card card">
+            <div class="card-body">
+                <h4 class="qna-home-title" th:text="#{qna.guide.title}">문의 안내</h4>
+                <p class="qna-home-text" th:utext="#{qna.guide.content}">
+                    저희 병원은 언제나 고객님의 소리에 귀 기울이고 있습니다.<br>
+                    병원에 궁금한 점을 문의하거나 개선됐으면 하는 것을 건의해주세요.<br>
+                    가능한 신속하게 해결해드리겠습니다.
+                </p>
+                <div class="mt-4 d-flex flex-wrap gap-2 qna-home-btns">
+                    <a th:href="@{/guide/qnaWrite}" sec:authorize="!hasRole('A')" class="btn btn-primary" th:text="#{qna.write}">문의하러 가기</a>
+                    <a th:href="@{/guide/myQnA}" sec:authorize="!hasRole('A')" class="btn btn-outline-secondary" th:text="#{qna.my.check}">내 문의 확인하기</a>
+                    <a th:href="@{/guide/qnaAnswer}" sec:authorize="hasRole('A')" class="btn btn-warning" th:text="#{qna.admin.check}">접수된 문의 확인하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

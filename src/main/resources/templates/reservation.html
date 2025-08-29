@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{reservation.title}">온라인 진료예약</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            padding-top: 80px;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 1.5rem 0;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .step-box {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-box.selected {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+        }
+
+        .step-box button {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            color: #3498db;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-box button:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .card-box {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            margin-top: 0;
+            border-top: none;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #3498db;
+            border-radius: 1px;
+        }
+
+        .dept-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            color: #495057;
+            font-weight: 500;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .dept-btn:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+            color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+
+        .doctor-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doctor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .doctor-card:hover::before {
+            left: 100%;
+        }
+
+        .doctor-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .doctor-card img {
+            width: 120px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+            border: 3px solid #f8f9fa;
+        }
+
+        .doctor-info {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .doctor-info p {
+            margin-bottom: 0.5rem;
+        }
+
+        .doctor-info strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .time-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .time-btn.btn-primary {
+            background: #3498db;
+            border-color: #3498db;
+            color: white;
+        }
+
+        .time-btn.btn-primary:hover {
+            background: #2980b9;
+            border-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .time-btn.btn-secondary {
+            background: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            opacity: 0.7;
+        }
+
+        .time-btn.btn-secondary:hover {
+            background: #5a6268;
+            border-color: #5a6268;
+        }
+
+        .confirm-section {
+            text-align: center;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+        }
+
+        .confirm-section img {
+            border: 4px solid #3498db;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .confirm-section h5 {
+            color: #2c3e50;
+            margin-top: 1rem;
+        }
+
+        .confirm-section .text-primary {
+            color: #3498db !important;
+            font-weight: 600;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            border-color: #c0392b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .flatpickr-calendar {
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: none;
+        }
+
+        .flatpickr-day.disabled {
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 6px;
+        }
+
+        .flatpickr-day.disabled:hover {
+            background: #f5c6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .step-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .card-box {
+                padding: 1.5rem;
+            }
+
+            .doctor-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .doctor-card img {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .step-indicator {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .step-box.completed .step-indicator {
+            background: #27ae60;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+<input type="hidden" id="sessionUserName" th:value="${user.name}">
+<input type="hidden" id="initialDept" th:value="${dept}"/>
+<input type="hidden" id="initialDoctorId" th:value="${doctorId}"/>
+<input type="hidden" id="initialDoctorName" th:value="${doctorName}"/>
+<input type="hidden" id="initialDoctorImage" th:value="${doctorImage}"/>
+
+<div class="container py-4">
+    <div class="step-header">
+        <div class="step-box selected" id="step1">
+            <div class="step-indicator">1</div>
+            <span th:text="#{reservation.step1}">진료과 선택</span><br>
+            <span id="selectedDept">-</span>
+            <button class="btn btn-light btn-sm" onclick="resetStep(1)">
+                <i class="fas fa-edit me-1"></i>
+                <span th:text="#{reservation.edit}">수정</span>
+            </button>
+        </div>
+        <div class="step-box" id="step2">
+            <div class="step-indicator">2</div>
+            <span th:text="#{reservation.step2}">의료진선택</span><br>
+            <span id="selectedDoctor">-</span>
+            <button class="btn btn-light btn-sm" onclick="resetStep(2)">
+                <i class="fas fa-edit me-1"></i>
+                <span th:text="#{reservation.edit}">수정</span>
+            </button>
+        </div>
+        <div class="step-box" id="step3">
+            <div class="step-indicator">3</div>
+            <span th:text="#{reservation.step3}">진료일시 선택</span><br>
+            <span id="selectedDateTime">-</span>
+            <button class="btn btn-light btn-sm" onclick="resetStep(3)">
+                <i class="fas fa-edit me-1"></i>
+                <span th:text="#{reservation.edit}">수정</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="content" class="card-box"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+<script th:inline="javascript">
+    // 아래처럼 i18n 객체를 만들어서 JS에서 사용
+    var i18n = {
+      selectDepartment: /*[[#{reservation.select.department}]]*/ '진료과를 선택하세요',
+      loadDepartmentError: /*[[#{reservation.load.department.error}]]*/ '진료과 목록을 불러오지 못했습니다.',
+      selectDoctor: /*[[#{reservation.select.doctor}]]*/ '의료진 선택',
+      loadDoctorError: /*[[#{reservation.load.doctor.error}]]*/ '의료진 정보를 불러오지 못했습니다.',
+      noDoctor: /*[[#{reservation.no.doctor}]]*/ '해당하는 과 선생님이 안계십니다',
+      noDoctorDesc: /*[[#{reservation.no.doctor.desc}]]*/ '다른 진료과를 선택해주시거나, 나중에 다시 확인해주세요.',
+      noDoctorButton: /*[[#{reservation.no.doctor.button}]]*/ '진료과 다시 선택',
+      selectDate: /*[[#{reservation.select.date}]]*/ '예약 날짜 선택',
+      selectTime: /*[[#{reservation.select.time}]]*/ '시간 선택',
+      loadTimeError: /*[[#{reservation.load.time.error}]]*/ '시간 슬롯을 불러오지 못했습니다.',
+      disabledDate: /*[[#{reservation.disabled.date}]]*/ '해당 날짜는 의료진 휴무일입니다. 다른 날짜를 선택해주세요.',
+      timeClosed: /*[[#{reservation.time.closed}]]*/ '예약 마감',
+      timeReserved: /*[[#{reservation.time.reserved}]]*/ '이미 예약된 시간입니다.',
+      timeSoon: /*[[#{reservation.time.soon}]]*/ '임박한 시간(2시간 이내) 예약 불가',
+      confirmTitle: /*[[#{reservation.confirm.title}]]*/ '진료예약 하시겠습니까?',
+      confirmButton: /*[[#{reservation.confirm.button}]]*/ '예약하기',
+      confirmFail: /*[[#{reservation.confirm.fail}]]*/ '예약에 실패했습니다. 다시 시도해주세요.'
+    };
+</script>
+<script>
+    let selected = {
+      dept: '',
+      doctorId: '',
+      doctorName: '',
+      doctorImage: '',
+      date: '',
+      time: ''
+    };
+
+    const content = document.getElementById('content');
+
+    function resetStep(step) {
+      if (step <= 1) selected.dept = '';
+      if (step <= 2) {
+        selected.doctorId = '';
+        selected.doctorName = '';
+      }
+      if (step <= 3) {
+        selected.date = '';
+        selected.time = '';
+      }
+      render();
+    }
+
+    function updateStepIndicators() {
+      const steps = document.querySelectorAll('.step-box');
+      steps.forEach((step, index) => {
+        step.classList.remove('selected', 'completed');
+        if (index === 0 && selected.dept) {
+          step.classList.add('completed');
+        } else if (index === 1 && selected.doctorId) {
+          step.classList.add('completed');
+        } else if (index === 2 && selected.date && selected.time) {
+          step.classList.add('completed');
+        } else if (index === 0 && !selected.dept) {
+          step.classList.add('selected');
+        } else if (index === 1 && selected.dept && !selected.doctorId) {
+          step.classList.add('selected');
+        } else if (index === 2 && selected.doctorId && !selected.date) {
+          step.classList.add('selected');
+        }
+      });
+    }
+
+  function render() {
+  console.log('render called, selected:', selected);
+
+  document.getElementById('selectedDept').innerText = selected.dept || '-';
+  document.getElementById('selectedDoctor').innerText = selected.doctorName || '-';
+  document.getElementById('selectedDateTime').innerText =
+    selected.date && selected.time ? `${selected.date} ${selected.time}` : '-';
+
+  updateStepIndicators();
+
+  if (!selected.dept) {
+    return renderDepartments();
+  }
+  if (!selected.doctorId) {
+    return renderDoctors();
+  }
+
+  // ✅ 날짜가 없거나, 날짜는 있지만 시간만 아직 없으면 → 시간 선택 UI 실행
+  if (!selected.date || (selected.date && !selected.time)) {
+    return renderDateTime();
+  }
+
+  // ✅ 날짜 + 시간 모두 선택된 경우 → 최종 예약 확인
+  renderConfirm();
+}
+
+function renderDepartments() {
+  content.innerHTML = `
+    <h5 class="section-title">
+      <i class="fas fa-hospital me-2"></i>${i18n.selectDepartment}
+    </h5>
+    <div class="row row-cols-2 g-3" id="deptContainer"></div>
+  `;
+
+ const currentLang = getLangFromCookie();
+
+  // ✅ 수정: 다국어 API 사용
+  fetch('/departments/all-with-lang')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('deptContainer');
+      container.innerHTML = data.map(dept => {
+        const deptName = (currentLang === 'en' && dept.nameEn) ? dept.nameEn : dept.name;
+        return `
+          <div class="col">
+            <button class="btn dept-btn w-100" onclick="selectDept('${deptName}')">
+              <i class="fas fa-stethoscope me-2"></i>${deptName}
+            </button>
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      content.innerHTML += `<div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>${i18n.loadDepartmentError}
+      </div>`;
+    });
+}
+
+function getLangFromCookie() {
+  const cookie = document.cookie
+    .split('; ')
+    .find(c => c.startsWith('lang='));
+  return cookie ? cookie.split('=')[1] : 'ko';
+}
+
+
+    function selectDept(dept) {
+      selected.dept = dept;
+      render();
+    }
+
+function renderDoctors() {
+  const currentLang = getLangFromCookie();  // ✅ 쿠키값으로 통일
+
+  content.innerHTML = `
+    <h5 class="section-title">
+      <i class="fas fa-user-md me-2"></i>${selected.dept} <span>${i18n.selectDoctor}</span>
+    </h5>
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="doctorGrid"></div>
+  `;
+
+  fetch(`/doctors/by-department?department=${selected.dept}`)
+    .then(res => res.json())
+    .then(data => {
+      const grid = document.getElementById('doctorGrid');
+
+      if (!data || data.length === 0) {
+        grid.innerHTML = `
+          <div class="col-12">
+            <div class="alert alert-info text-center" style="background: #e3f2fd; border: 1px solid #90caf9; color: #1565c0; border-radius: 12px; padding: 2rem;">
+              <i class="fas fa-user-md me-2" style="font-size: 2rem; color: #1976d2;"></i>
+              <h5 class="mt-2 mb-3">${i18n.noDoctor}</h5>
+              <p class="mb-0">${i18n.noDoctorDesc}</p>
+              <button class="btn btn-outline-primary mt-3" onclick="resetStep(1)">
+                <i class="fas fa-arrow-left me-2"></i>${i18n.noDoctorButton}
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = data.map(doc => {
+        // ✅ 언어 쿠키에 따라 다국어 처리
+        const deptDisplay = (currentLang === 'en' && doc.departmentEn)
+            ? doc.departmentEn
+            : doc.department || '';
+
+        const descDisplay = (currentLang === 'en' && doc.descriptionEn)
+            ? doc.descriptionEn
+            : (doc.description || '소개 정보 없음');
+
+        return `
+          <div class="col">
+            <div class="doctor-card" onclick="selectDoctor('${doc.id}', '${doc.name}', '${doc.profileImage || ''}')">
+              <img src="${doc.profileImage || '/images/default-doctor.jpg'}" alt="${doc.name}" onerror="this.src='/images/default-doctor.jpg'">
+              <div class="doctor-info">
+                <p><strong><i class="fas fa-user me-1"></i>이름:</strong> ${doc.name}</p>
+                <p><strong><i class="fas fa-hospital me-1"></i>진료과:</strong> ${deptDisplay}</p>
+                <p><strong><i class="fas fa-user-tie me-1"></i>직책:</strong> ${doc.position || '미지정'}</p>
+                <p class="mb-0"><strong><i class="fas fa-info-circle me-1"></i>소개:</strong> ${descDisplay}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      content.innerHTML += `<div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>${i18n.loadDoctorError}
+      </div>`;
+    });
+}
+
+
+
+
+    function selectDoctor(id, name, image) {
+      selected.doctorId = id;
+      selected.doctorName = name;
+      selected.doctorImage = image;
+      render();
+    }
+function renderDateTime() {
+  // ✅ 날짜가 이미 URL 파라미터로 넘어온 경우 → 달력 생략하고 시간만 표시
+  if (selected.date) {
+    content.innerHTML = `
+      <h5 class="section-title">
+        <i class="fas fa-clock me-2"></i>${selected.date} <span>${i18n.selectDoctor}</span>
+      </h5>
+      <div id="timeSlots" class="row row-cols-3 g-3"></div>
+    `;
+    loadTimeSlots();
+    return;
+  }
+
+  // ✅ 날짜가 없으면 기존처럼 달력 + 시간 선택 UI 렌더
+  content.innerHTML = `
+    <h5 class="section-title">
+      <i class="fas fa-calendar-alt me-2"></i><span>${i18n.selectDate}</span>
+    </h5>
+    <input type="text" id="datePicker" class="form-control mb-4" placeholder="${i18n.selectDate}" style="border-radius: 8px; border: 2px solid #e9ecef; padding: 0.75rem;">
+    <h5 class="section-title">
+      <i class="fas fa-clock me-2"></i><span>${i18n.selectTime}</span>
+    </h5>
+    <div id="timeSlots" class="row row-cols-3 g-3"></div>
+  `;
+
+  fetch(`/doctors/${selected.doctorId}/disable-dates`)
+    .then(res => res.json())
+    .then(disabledDates => {
+      flatpickr("#datePicker", {
+        locale: "ko",
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        disable: disabledDates,
+        onChange: function(selectedDates) {
+          const jsDate = selectedDates[0];
+          const year = jsDate.getFullYear();
+          const month = String(jsDate.getMonth() + 1).padStart(2, '0');
+          const day = String(jsDate.getDate()).padStart(2, '0');
+          const localDate = `${year}-${month}-${day}`;
+          selected.date = localDate;
+          loadTimeSlots();
+        },
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+          const dayDate = dayElem.dateObj;
+          const formatted = `${dayDate.getFullYear()}-${String(dayDate.getMonth() + 1).padStart(2, '0')}-${String(dayDate.getDate()).padStart(2, '0')}`;
+
+          if (disabledDates.includes(formatted)) {
+            // 시각적 강조
+            dayElem.style.background = "#f8d7da";
+            dayElem.style.color = "#721c24";
+            dayElem.style.borderRadius = "6px";
+            dayElem.style.cursor = "not-allowed";
+            dayElem.style.pointerEvents = "auto"; // 마우스 이벤트 허용
+
+            // 툴팁 요소 추가
+            const tooltip = document.createElement('div');
+            tooltip.textContent = i18n.disabledDate || "의사 휴가일입니다.";
+            tooltip.style.position = 'absolute';
+            tooltip.style.background = '#333';
+            tooltip.style.color = '#fff';
+            tooltip.style.padding = '4px 8px';
+            tooltip.style.fontSize = '0.75rem';
+            tooltip.style.borderRadius = '4px';
+            tooltip.style.whiteSpace = 'nowrap';
+            tooltip.style.zIndex = '9999';
+            tooltip.style.display = 'none';
+            tooltip.style.top = '100%';
+            tooltip.style.left = '50%';
+            tooltip.style.transform = 'translateX(-50%)';
+
+            dayElem.style.position = 'relative';
+            dayElem.appendChild(tooltip);
+
+            dayElem.addEventListener('mouseenter', () => {
+              tooltip.style.display = 'block';
+            });
+            dayElem.addEventListener('mouseleave', () => {
+              tooltip.style.display = 'none';
+            });
+
+            // 클릭 차단 (더블 보완)
+            dayElem.addEventListener('click', e => e.preventDefault());
+          }
+        }
+      });
+    });
+}
+
+
+
+
+function generateTimeSlots() {
+  const slots = [];
+  const selectedDate = new Date(selected.date);
+  const dayOfWeek = selectedDate.getDay(); // 0:일요일, 6:토요일
+
+  const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+
+  const startHour = isWeekend ? 10 : 9;
+  const endHour   = isWeekend ? 16 : 18;
+
+  for (let hour = startHour; hour <= endHour; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      if (hour === 12 || hour === 13) continue;
+      if (isWeekend && hour === 16 && minute >= 30) continue;
+      if (!isWeekend && hour === 18 && minute >= 30) continue;  // 🔧 수정 포인트
+
+      const hh = String(hour).padStart(2, '0');
+      const mm = String(minute).padStart(2, '0');
+      slots.push(`${hh}:${mm}`);
+    }
+  }
+  return slots;
+}
+
+
+    function loadTimeSlots() {
+      console.log('loadTimeSlots called, doctorId:', selected.doctorId, 'date:', selected.date);
+      const times = generateTimeSlots();
+      fetch(`/reservation/doctor-availability?doctorId=${selected.doctorId}&date=${selected.date}`)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('timeSlots');
+          container.innerHTML = '';
+
+          if (data.disabled) {
+            container.innerHTML = `<div class="col-12 text-center alert alert-danger">
+              <i class="fas fa-calendar-times me-2"></i>※ ${i18n.disabledDate}
+            </div>`;
+            return;
+          }
+
+          const reservedTimes = data.times || {};
+          const now = new Date();
+          const nowPlus2 = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+          times.forEach(slot => {
+            const reserved = reservedTimes[slot] || 0;
+            const slotDate = new Date(`${selected.date}T${slot}:00`);
+            const isToday = selected.date === now.toISOString().split("T")[0];
+            const isPast = isToday && slotDate <= nowPlus2;
+
+            const btn = document.createElement('button');
+            btn.className = 'btn time-btn';
+
+            let disabledReason = '';
+            if (reserved >= 1) {
+              btn.classList.add('btn-secondary');
+              btn.disabled = true;
+              btn.innerHTML = `<i class="fas fa-times me-1"></i>${slot}<br><small>${i18n.timeReserved}</small>`;
+              disabledReason = '이미 예약된 시간입니다.';
+            } else if (isPast) {
+              btn.classList.add('btn-secondary');
+              btn.disabled = true;
+              btn.innerHTML = `<i class="fas fa-times me-1"></i>${slot}<br><small>${i18n.timeSoon}</small>`;
+              disabledReason = '임박한 시간(2시간 이내) 예약 불가';
+            } else {
+              btn.classList.add('btn-primary');
+              btn.innerHTML = `<i class="fas fa-check me-1"></i>${slot}`;
+              btn.onclick = () => {
+                selected.time = slot;
+                render();
+              };
+            }
+            if (disabledReason) {
+              btn.title = disabledReason;
+            }
+            const col = document.createElement('div');
+            col.className = 'col';
+            col.appendChild(btn);
+            container.appendChild(col);
+          });
+        })
+        .catch(error => {
+          console.error("Error fetching time slots:", error);
+          container.innerHTML = `<div class="col-12 text-center alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>${i18n.loadTimeError}
+          </div>`;
+        });
+    }
+
+  function renderConfirm() {
+  const currentLang = new URLSearchParams(window.location.search).get('lang') || 'ko';
+  const deptDisplay = currentLang === 'en' ? selected.deptEn || selected.dept : selected.dept;
+
+  const name = document.getElementById('sessionUserName')?.value || '고객';
+  const profileImg = selected.doctorImage || '/images/default-doctor.jpg';
+
+  content.innerHTML = `
+    <div class="confirm-section">
+      <img src="${profileImg}" width="100" height="120" class="mb-3 rounded" onerror="this.src='/images/default-doctor.jpg'"/>
+      <h5>
+        <strong><i class="fas fa-user me-2"></i>${name}님</strong><br>
+        <span class="text-primary">
+          <i class="fas fa-calendar-check me-2"></i>${selected.date} ${selected.time}<br>
+          <i class="fas fa-hospital me-2"></i>${deptDisplay} ${selected.doctorName}
+        </span><br>
+        ${i18n.confirmTitle}
+      </h5>
+      <button class="btn btn-danger mt-4" onclick="submitReservation()">
+        <i class="fas fa-check-circle me-2"></i>${i18n.confirmButton}
+      </button>
+    </div>
+  `;
+}
+
+
+function submitReservation() {
+  fetch('/reservation', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ date: selected.date, time: selected.time, doctorId: selected.doctorId })
+  }).then(res => {
+    if (res.ok) {
+      const userName = document.getElementById('sessionUserName')?.value || '고객';
+      const currentLang = getLangFromCookie(); // ✅ 쿠키 기반으로 lang 읽기
+
+      window.location.href = `/reservation/complete?name=${encodeURIComponent(userName)}&date=${selected.date}&time=${selected.time}&department=${encodeURIComponent(selected.dept)}&doctorName=${encodeURIComponent(selected.doctorName)}&doctorImage=${encodeURIComponent(selected.doctorImage)}&lang=${currentLang}`;
+    } else {
+      res.json().then(data => {
+        alert(data.message || i18n.confirmFail);
+      });
+    }
+  });
+}
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      selected.dept = document.getElementById('initialDept')?.value || urlParams.get('dept') || '';
+      selected.doctorId = document.getElementById('initialDoctorId')?.value || urlParams.get('doctorId') || '';
+      selected.doctorName = document.getElementById('initialDoctorName')?.value || urlParams.get('doctorName') || '';
+      selected.doctorImage = document.getElementById('initialDoctorImage')?.value || urlParams.get('doctorImage') || '';
+      selected.date = urlParams.get('date') || '';
+      console.log('selected:', selected);
+      render();
+    });
+</script>
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

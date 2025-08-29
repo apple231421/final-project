@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>병원장 인사말 | 더조은병원</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            color: #333;
+            min-height: 100vh;
+            flex-direction: column;
+            padding-top: 100px;
+        }
+
+        .container_hi {
+            max-width: 1100px;
+            margin: 0 auto 100px auto;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .hi-flexbox {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .content_hi {
+            flex: 2;
+        }
+
+        .photo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .photo img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #a10035;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .signature {
+            margin-top: 40px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .signatureName {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .hi-flexbox {
+                flex-direction: column;
+            }
+            .photo {
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<main>
+    <div class="container_hi">
+        <div class="hi-flexbox">
+            <!-- 인사말 텍스트 -->
+            <div class="content_hi">
+                <h1 th:text="#{president.message.title}">병원장 인사말</h1>
+                <h2 th:text="#{president.message.headline}">환자 최우선의 초일류 병원으로 도약</h2><br><h2 th:text="#{president.message.hospital}">더조은병원</h2>
+
+                <p th:text="#{president.message.greeting}">안녕하십니까?</p><br><p th:text="#{president.message.welcome}">더조은병원 홈페이지를 찾아주셔서 진심으로 감사합니다.</p>
+
+                <p th:text="#{president.message.intro}">더조은병원은 환자를 최우선으로 생각하며, 병원을 찾는 환자가 병원에 들어서셨을 때부터 귀가하실 때까지 최상의 서비스를 제공 받을 수 있도록 최선을 다하고 있습니다. 개원한 2025년 국내 최초의 의과대학 부속병원으로서의 자부심을 살려, 120일이 넘는 기간 동안 의학교육과 진료, 연구에 매진해 온 역사와 전통이 살아 숨 쉬는 병원입니다.</p>
+
+                <p th:text="#{president.message.awards}">더조은병원은 2025년부터 현재까지 5차례 국제의료기관평가(JCI) 인증을 연속으로 획득하고자 하는 등 국가적 이상적인 의료기관의 모델이 되려고 하고 있으며, ‘우수의료 기술’, ‘의학논문’, ‘환자 안전’ 등의 분야에서도 우수성을 인정받기 위해 노력하고 있습니다.</p>
+
+                <p th:text="#{president.message.research}">또한, 국내 최고의 연구중심병원으로서 더조은의료원과 함께, 인접 의과대학 캠퍼스, 연구소, 융복합센터를 아우르는 견고한 'Health Technology R&D 개방형 생태계(Open Ecosystem)'를 구축하여, 첨단 융복합 기술을 기반으로 질병의 조기 예측과 치료를 가능케 하는 정밀의료를 실현하고 나아가 환자건강과 인류복지에 진정으로 공헌하고자 합니다.</p>
+
+            </div>
+
+            <!-- 병원장 사진 -->
+            <div class="photo">
+                <img src="/images/doctorKing.jpg" alt="더조은병원장 고양이">
+            </div>
+            <div class="hi-flexbox">
+                <!-- 인사말 텍스트2 -->
+                <div class="content_hi">
+            <p th:text="#{president.message.vision}">더조은병원은 최고의 혁신, 최고의 기회를 키워갈 글로벌 의료기관으로 변화를 거듭하고 있으며, 인도적 관점에서 취약계층 및 다문화가정 지원을 통한 공공 및 책임의료 실천에 집중하고 있습니다.</p>
+            <p th:text="#{president.message.system}">첨단 융복합 정밀의료 다학제시스템 기반의 다양한 임상과 정밀한 치료를 제공하여 환자 중심의 최상의 의료 서비스를 모든 환자들이 안전하게 혜택 받을 수 있도록 노력하고 있습니다.</p>
+            <p th:text="#{president.message.commitment}">이러한 모든 노력은 더조은병원의 설립 정신인 5대 실천강령을 병원의 핵심 운영철학으로 삼을 것이며, 병원 이용에 대한 정보, 즉시 반영하여 신속한 대응을 위한 의견청취 창구로 더조은병원 홈페이지를 운영하고 있습니다.</p>
+            <p th:text="#{president.message.footer}">진료예약과 정보확인 등에 도움이 되길 바랍니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="signature" th:text="#{president.message.signature}">더조은병원 병원장</p><br><p class="signatureName" th:text="#{president.message.name}">고 양 이</p>
+    </div>
+</main>
+
+<!-- 하단 공통 푸터 -->
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>

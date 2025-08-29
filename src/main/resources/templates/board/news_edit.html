@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>카드뉴스 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--hospital-light);
+            color: var(--hospital-dark);
+            margin: 0;
+        }
+        .container {
+            margin: 120px auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 800;
+            color: var(--hospital-primary);
+            font-size: 2rem;
+            letter-spacing: -1px;
+        }
+        form {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+            border: 1.5px solid var(--hospital-border);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-label {
+            font-weight: 600;
+            color: var(--hospital-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .form-control {
+            border: 1.5px solid var(--hospital-border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus {
+            border-color: var(--hospital-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+        .form-control:focus::placeholder {
+            color: var(--hospital-gray);
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .btn {
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+            margin-right: 0.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            border: none;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--hospital-accent), var(--hospital-primary));
+            color: #fff;
+            box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--hospital-gray), #94a3b8);
+            border: none;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #94a3b8, var(--hospital-gray));
+            color: #fff;
+            box-shadow: 0 4px 16px var(--hospital-shadow-lg);
+        }
+        .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+        .mt-2 {
+            margin-top: 1rem !important;
+        }
+        .mt-2 img {
+            border-radius: 8px;
+            border: 1px solid var(--hospital-border);
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+        }
+        @media (max-width: 991.98px) {
+            .container {
+                margin: 60px 0 0 0;
+                padding: 0 8px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            form {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container mt-4">
+    <h1 class="mb-4" th:text="#{news.editNews}">카드뉴스 수정</h1>
+    <form th:action="@{/board/news/edit/{id}(id=${news.id})}" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">제목</label>
+            <input type="text" name="title" class="form-control" th:value="${news.title}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" th:text="#{news.author.title}">작성자</label>
+            <div id="authorContainer">
+                <div class="author-row mb-2 d-flex align-items-center" th:each="author, iterStat : ${news.authors}">
+                    <select name="authorIds" class="form-select author-select me-2" required>
+                        <option value="" th:text="#{news.doctor.choice}">의사를 선택하세요</option>
+                        <option th:each="doctor : ${doctors}"
+                                th:value="${doctor.id}"
+                                th:text="${#locale.language == 'en' ?
+                    (doctor.department != null ? doctor.name + ' (' + doctor.department.nameEn + ')' : doctor.name)
+                    :
+                    (doctor.department != null ? doctor.name + ' (' + doctor.department.name + ')' : doctor.name)
+                 }"
+                                th:selected="${doctor.id == author.id}">
+                            의사명 (진료과)
+                        </option>
+                    </select>
+                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                            th:if="${iterStat.index > 0}" onclick="removeAuthor(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" 
+                            th:if="${iterStat.last}" onclick="addAuthor()">
+                        <i class="bi bi-plus-circle"></i> <span th:text="#{news.author.insert}">작성자 추가</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" th:text="#{news.author.content}">내용</label>
+            <textarea name="content" class="form-control" rows="5" required th:text="${news.content}"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" th:text="#{news.author.thumbnail}">썸네일 이미지</label>
+            <input type="file" name="imageFile" class="form-control" onchange="return confirmSingleImage(this)">
+            <div th:if="${news.filePath != null}" class="mt-2">
+                <img th:src="@{${news.filePath}}" alt="썸네일 미리보기" style="max-width:200px;">
+                <label class="ms-2">
+                    <input type="checkbox" name="deleteImage" value="true"> 삭제
+                </label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" th:text="#{news.editinmg}"><i class="bi bi-pencil-square"></i> 수정</button>
+        <a th:href="@{/board/news}" class="btn btn-secondary" th:text="#{news.back}">취소</a>
+    </form>
+</div>
+
+<script>
+    function addAuthor() {
+        const container = document.getElementById('authorContainer');
+        
+        // 이미 선택된 의사들 확인
+        const selectedDoctors = getSelectedDoctors();
+        const availableDoctors = getAvailableDoctors(selectedDoctors);
+        
+        if (availableDoctors.length === 0) {
+            alert('모든 의사가 이미 선택되었습니다.');
+            return;
+        }
+        
+        const authorRow = document.createElement('div');
+        authorRow.className = 'author-row mb-2 d-flex align-items-center';
+        
+        const select = document.createElement('select');
+        select.name = 'authorIds';
+        select.className = 'form-select author-select me-2';
+        select.required = true;
+        
+        // 기본 옵션
+        select.innerHTML = '<option value="">의사를 선택하세요</option>';
+        
+        // 사용 가능한 의사들만 옵션으로 추가
+        availableDoctors.forEach(doctor => {
+            const option = document.createElement('option');
+            option.value = doctor.id;
+            option.textContent = doctor.name + ' (' + doctor.department + ')';
+            select.appendChild(option);
+        });
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn btn-outline-danger btn-sm';
+        removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+        removeBtn.onclick = function() {
+            container.removeChild(authorRow);
+            updateAvailableOptions();
+        };
+        
+        authorRow.appendChild(select);
+        authorRow.appendChild(removeBtn);
+        
+        // 새 행을 맨 아래에 추가
+        container.appendChild(authorRow);
+        
+        // 선택 변경 시 다른 드롭다운 옵션 업데이트
+        select.addEventListener('change', updateAvailableOptions);
+    }
+    
+    function removeAuthor(button) {
+        button.closest('.author-row').remove();
+        updateAvailableOptions();
+    }
+    
+    // 현재 선택된 의사들 가져오기
+    function getSelectedDoctors() {
+        const selects = document.querySelectorAll('.author-select');
+        const selected = [];
+        selects.forEach(select => {
+            if (select.value) {
+                selected.push({
+                    id: select.value,
+                    name: select.options[select.selectedIndex].text.split(' (')[0],
+                    department: select.options[select.selectedIndex].text.match(/\(([^)]+)\)/)[1]
+                });
+            }
+        });
+        return selected;
+    }
+    
+    // 사용 가능한 의사들 가져오기
+    function getAvailableDoctors(selectedDoctors) {
+        const allDoctors = [];
+        const originalSelect = document.querySelector('.author-select');
+        for (let i = 1; i < originalSelect.options.length; i++) {
+            const option = originalSelect.options[i];
+            const doctorId = option.value;
+            const doctorName = option.text.split(' (')[0];
+            const match = option.text.match(/\(([^)]+)\)/);
+            const department = match ? match[1] : '';
+
+            // 이미 선택되지 않은 의사만 추가
+            if (!selectedDoctors.some(selected => selected.id === doctorId)) {
+                allDoctors.push({
+                    id: doctorId,
+                    name: doctorName,
+                    department: department
+                });
+            }
+        }
+        return allDoctors;
+    }
+    
+    // 모든 드롭다운의 사용 가능한 옵션 업데이트
+    function updateAvailableOptions() {
+        const selectedDoctors = getSelectedDoctors();
+        const selects = document.querySelectorAll('.author-select');
+        
+        selects.forEach(select => {
+            const currentValue = select.value;
+            const availableDoctors = getAvailableDoctors(selectedDoctors);
+            
+            // 현재 선택된 의사는 제외하고 사용 가능한 의사 목록 생성
+            const currentDoctor = selectedDoctors.find(d => d.id === currentValue);
+            if (currentDoctor) {
+                availableDoctors.push(currentDoctor);
+            }
+            
+            // 옵션 업데이트
+            select.innerHTML = '<option value="">의사를 선택하세요</option>';
+            availableDoctors.forEach(doctor => {
+                const option = document.createElement('option');
+                option.value = doctor.id;
+                option.textContent = doctor.name + ' (' + doctor.department + ')';
+                if (doctor.id === currentValue) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        });
+    }
+    
+    // 페이지 로드 시 모든 드롭다운에 change 이벤트 추가
+    document.addEventListener('DOMContentLoaded', function() {
+        const selects = document.querySelectorAll('.author-select');
+        selects.forEach(select => {
+            select.addEventListener('change', updateAvailableOptions);
+        });
+    });
+
+    function confirmSingleImage(input) {
+        if (input.files && input.files.length > 1) {
+            alert('썸네일 이미지는 하나만 넣을 수 있습니다.');
+            input.value = '';
+            return false;
+        }
+        if (input.files && input.files.length === 1) {
+            if (!confirm('썸네일 이미지는 하나만 넣을 수 있습니다.')) {
+                input.value = '';
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html> 

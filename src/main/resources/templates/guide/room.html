@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>층별 병원 안내</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            background-color: var(--hospital-light);
+            margin: 0;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            margin: 120px auto;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            transition: all 0.5s ease;
+        }
+        .main-content.with-card {
+            justify-content: space-between;
+        }
+        .main-content.only-map {
+            justify-content: center;
+        }
+
+        .map-area {
+            flex: 1;
+            transition: transform 0.5s ease;
+        }
+        .map-area.only {
+            width: 600px;
+            justify-content: center;
+        }
+        .map-area.shifted {
+            transform: translateX(-50px);
+        }
+
+        .map-image {
+            width: 600px;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+            border: 2px solid var(--hospital-primary);
+        }
+
+        .map-wrapper {
+            display: none;
+            text-align: center;
+            position: relative;
+            perspective: 1000px;
+            margin-bottom: 120px;
+        }
+
+        area {
+            cursor: pointer;
+        }
+
+        .marker {
+            width: 36px;
+            height: 36px;
+            position: absolute;
+            z-index: 10;
+            animation: bounce 2s infinite ease-in-out;
+            transition: left 0.4s ease, top 0.4s ease;
+            pointer-events: none;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            filter: drop-shadow(0 2px 8px var(--hospital-shadow-lg));
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translate(-50%, -100%) scale(1) rotateY(0deg);
+            }
+            50% {
+                transform: translate(-50%, -120%) scale(1.8) rotateY(720deg);
+            }
+        }
+
+        .card-container {
+            width: 600px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 1.2s cubic-bezier(0.4,0,0.2,1), transform 1.2s cubic-bezier(0.4,0,0.2,1);
+            margin-bottom: 120px;
+        }
+        .card-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .card-container:empty {
+            display: none !important;
+        }
+
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+            background: #fff;
+            transition: box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.7s cubic-bezier(0.4,0,0.2,1);
+        }
+        .card:hover {
+            box-shadow: 0 8px 32px var(--hospital-shadow-lg);
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--hospital-primary);
+            margin-bottom: 0.5rem;
+        }
+        .card-text {
+            color: var(--hospital-dark);
+            font-size: 1rem;
+        }
+        .text-muted {
+            color: var(--hospital-gray) !important;
+            font-size: 0.95rem;
+            background: var(--hospital-light);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--hospital-primary);
+        }
+        .btn-outline-primary {
+            background: var(--hospital-primary);
+            border-color: var(--hospital-primary);
+            color: #fff;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn-outline-primary:hover {
+            background: var(--hospital-accent);
+            border-color: var(--hospital-accent);
+            color: #fff;
+            box-shadow: 0 2px 8px var(--hospital-shadow-lg);
+        }
+        h1.text-center.fw-bold {
+            color: var(--hospital-primary);
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+        }
+        .nav-pills .nav-link {
+            color: var(--hospital-dark);
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            margin: 0 0.2rem;
+            transition: all 0.2s;
+        }
+        .nav-pills .nav-link.active, .nav-pills .nav-link:hover {
+            color: #fff !important;
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+        }
+        .dropdown-menu {
+            border-radius: 10px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+            border: 1.5px solid var(--hospital-border);
+            padding: 0.5rem 0;
+        }
+        .dropdown-item {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--hospital-dark);
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+            cursor:  pointer;
+        }
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            color: #fff;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @media (max-width: 991.98px) {
+            .container {
+                margin: 60px 0 0 0;
+                padding: 0 8px;
+            }
+            .main-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .map-image, .card-container {
+                width: 100% !important;
+                min-width: 0;
+            }
+            .card-container {
+                margin-bottom: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 class="text-center fw-bold" th:text="#{room.info}">병실안내</h1>
+
+    <!-- 층별 메뉴 -->
+    <ul class="nav nav-pills justify-content-center mb-4">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" role="button" aria-expanded="false" onclick="showFloor(1)" th:text="#{parking.1f}">1층</a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Internal Medicine\')' : 'selectDept(\'내과\')'"
+                       th:text="#{dept.internal}">내과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Obstetrics and Gynecology\')' : 'selectDept(\'산부인과\')'"
+                       th:text="#{dept.obgyn}">산부인과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Pediatrics\')' : 'selectDept(\'소아청소년과\')'"
+                       th:text="#{dept.pediatrics}">소아청소년과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Neurology\')' : 'selectDept(\'신경과\')'"
+                       th:text="#{dept.neurology}">신경과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Otolaryngology\')' : 'selectDept(\'이비인후과\')'"
+                       th:text="#{dept.ent}">이비인후과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Rehabilitation\')' : 'selectDept(\'재활의학과\')'"
+                       th:text="#{dept.rehab}">재활의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Orthopedics\')' : 'selectDept(\'정형외과\')'"
+                       th:text="#{dept.orthopedics}">정형외과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Surgical\')' : 'selectDept(\'외과\')'"
+                       th:text="#{dept.surgery}">외과</a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" role="button" aria-expanded="false" onclick="showFloor(2)" th:text="#{parking.2f}">2층</a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Family Medicine\')' : 'selectDept(\'가정의학과\')'"
+                       th:text="#{dept.family}">가정의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Anesthesiology and Pain Medicine\')' : 'selectDept(\'마취통증의학과\')'"
+                       th:text="#{dept.anesthesia}">마취통증의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Urology\')' : 'selectDept(\'비뇨의학과\')'"
+                       th:text="#{dept.urology}">비뇨의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Radiology\')' : 'selectDept(\'영상의학과\')'"
+                       th:text="#{dept.radiology}">영상의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Ophthalmology\')' : 'selectDept(\'안과\')'"
+                       th:text="#{dept.ophthalmology}">안과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Emergency Medicine\')' : 'selectDept(\'응급의학과\')'"
+                       th:text="#{dept.emergency}">응급의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Psychiatry\')' : 'selectDept(\'정신건강의학과\')'"
+                       th:text="#{dept.psychiatry}">정신건강의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Dermatology\')' : 'selectDept(\'피부과\')'"
+                       th:text="#{dept.dermatology}">피부과</a></li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" role="button" aria-expanded="false" onclick="showFloor(3)" th:text="#{parking.3f}">3층</a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Clinical Pathology\')' : 'selectDept(\'병리과\')'"
+                       th:text="#{dept.clinical}">병리과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Diagnostic Laboratory Medicine\')' : 'selectDept(\'진단검사의학과\')'"
+                       th:text="#{dept.laboratory}">진단검사의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Occupational and Environmental Medicine\')' : 'selectDept(\'직업환경의학과\')'"
+                       th:text="#{dept.occupational}">직업환경의학과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Dental\')' : 'selectDept(\'치과\')'"
+                       th:text="#{dept.dental}">치과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Herbal Medicine\')' : 'selectDept(\'한방과\')'"
+                       th:text="#{dept.oriental}">한방과</a></li>
+                <li><a class="dropdown-item"
+                       th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Nuclear Medicine\')' : 'selectDept(\'핵의학과\')'"
+                       th:text="#{dept.nuclear}">핵의학과</a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="main-content" id="mainContent">
+    <!-- 지도 영역 -->
+    <div class="map-area" id="mapArea">
+        <div class="map-wrapper" id="floor1MapWrapper">
+            <img th:src="${#locale.language == 'en'} ? @{/images/floor1_en.jpg} : @{/images/floor1.jpg}" usemap="#hospitalMap_1" class="map-image" th:alt="#{floor1.image.alt}">
+            <img id="marker_1" src="/images/marker.png" class="marker" style="display: none;" alt="여기">
+            <map name="hospitalMap_1">
+                <area shape="rect" coords="52,170,130,244" th:alt="#{dept.internal}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Internal Medicine\')' : 'selectDept(\'내과\')'" />
+                <area shape="rect" coords="138,244,212,318" th:alt="#{dept.surgery}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Surgical\')' : 'selectDept(\'외과\')'" />
+                <area shape="rect" coords="190,324,312,446" th:alt="#{dept.pediatrics}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Pediatrics\')' : 'selectDept(\'소아청소년과\')'" />
+                <area shape="rect" coords="354,412,430,482" th:alt="#{dept.orthopedics}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Orthopedics\')' : 'selectDept(\'정형외과\')'" />
+                <area shape="rect" coords="362,306,458,384" th:alt="#{dept.rehab}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Rehabilitation\')' : 'selectDept(\'재활의학과\')'" />
+                <area shape="rect" coords="424,226,500,302" th:alt="#{dept.obgyn}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Obstetrics and Gynecology\')' : 'selectDept(\'산부인과\')'" />
+                <area shape="rect" coords="314,150,408,242" th:alt="#{dept.neurology}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Neurology\')' : 'selectDept(\'신경과\')'" />
+                <area shape="rect" coords="200,80,300,174" th:alt="#{dept.ent}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Otolaryngology\')' : 'selectDept(\'이비인후과\')'" />
+            </map>
+        </div>
+        <div class="map-wrapper" id="floor2MapWrapper">
+            <img th:src="${#locale.language == 'en'} ? @{/images/floor2_en.jpg} : @{/images/floor2.jpg}" usemap="#hospitalMap_2" class="map-image" th:alt="#{floor2.image.alt}">
+            <img id="marker_2" src="/images/marker.png" class="marker" style="display: none;" alt="여기">
+            <map name="hospitalMap_2">
+                <area shape="rect" coords="52,170,130,244" th:alt="#{dept.ophthalmology}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Ophthalmology\')' : 'selectDept(\'안과\')'" />
+                <area shape="rect" coords="138,244,212,318" th:alt="#{dept.urology}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Urology\')' : 'selectDept(\'비뇨의학과\')'" />
+                <area shape="rect" coords="190,324,312,446" th:alt="#{dept.psychiatry}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Psychiatry\')' : 'selectDept(\'정신건강의학과\')'" />
+                <area shape="rect" coords="354,412,430,482" th:alt="#{dept.family}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Family Medicine\')' : 'selectDept(\'가정의학과\')'" />
+                <area shape="rect" coords="362,306,458,384" th:alt="#{dept.emergency}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Emergency Medicine\')' : 'selectDept(\'응급의학과\')'" />
+                <area shape="rect" coords="424,226,500,302" th:alt="#{dept.radiology}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Radiology\')' : 'selectDept(\'영상의학과\')'" />
+                <area shape="rect" coords="314,150,408,242" th:alt="#{dept.dermatology}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Dermatology\')' : 'selectDept(\'피부과\')'" />
+                <area shape="rect" coords="200,80,300,174" th:alt="#{dept.anesthesia}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Anesthesiology and Pain Medicine\')' : 'selectDept(\'마취통증의학과\')'" />
+            </map>
+        </div>
+        <div class="map-wrapper" id="floor3MapWrapper">
+            <img th:src="${#locale.language == 'en'} ? @{/images/floor3_en.jpg} : @{/images/floor3.jpg}" usemap="#hospitalMap_3" class="map-image" th:alt="#{floor3.image.alt}">
+            <img id="marker_3" src="/images/marker.png" class="marker" style="display: none;" alt="여기">
+            <map name="hospitalMap_3">
+                <area shape="rect" coords="26,186,150,310" th:alt="#{dept.oriental}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Herbal Medicine\')' : 'selectDept(\'한방과\')'" />
+                <area shape="rect" coords="192,324,316,448" th:alt="#{dept.occupational}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Occupational and Environmental Medicine\')' : 'selectDept(\'직업환경의학과\')'" />
+                <area shape="rect" coords="342,398,463,522" th:alt="#{dept.nuclear}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Nuclear Medicine\')' : 'selectDept(\'핵의학과\')'" />
+                <area shape="rect" coords="340,306,476,384" th:alt="#{dept.laboratory}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Diagnostic Laboratory Medicine\')' : 'selectDept(\'진단검사의학과\')'" />
+                <area shape="rect" coords="414,210,538,294" th:alt="#{dept.clinical}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Department of Clinical Pathology\')' : 'selectDept(\'병리과\')'" />
+                <area shape="rect" coords="208,74,400,254" th:alt="#{dept.dental}"
+                      th:onclick="${#locale.language == 'en'} ? 'selectDept(\'Dental\')' : 'selectDept(\'치과\')'" />
+            </map>
+        </div>
+    </div>
+
+    <!-- 카드 영역 -->
+    <div class="card-container" id="cardContainer" style="display: none;">
+        <div id="doctorCardBox"></div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script>
+    function showFloor(floor) {
+        currentFloor = floor;
+        const cardBox = document.getElementById('doctorCardBox');
+        const cardContainer = document.getElementById('cardContainer');
+        const isEmpty = cardBox.innerHTML.trim() === ''; // ✅ 직접 정의
+
+        cardContainer.style.display = isEmpty ? 'none' : 'block';
+
+        [1, 2, 3].forEach(f => {
+            const el = document.getElementById(`floor${f}MapWrapper`);
+            if (el) el.style.display = (f === floor) ? 'block' : 'none';
+        });
+
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.nav-link')[floor - 1].classList.add('active');
+
+        cardBox.innerHTML = '';
+        cardContainer.classList.remove('show');
+
+        updateMainContentClass(); // 여기도 같이 써주면 클래스 토글 적용됨
+    }
+
+
+    function selectDept(deptName) {
+        const mapArea = document.getElementById('mapArea'); // ← 이 줄 추가
+        moveMarker(deptName); // ← 선택된 과에 따라 마커 이동
+
+        const container = document.getElementById('doctorCardBox');
+        const cardContainer = document.getElementById('cardContainer');
+        const mainContent = document.querySelector('.main-content');
+
+        cardContainer.style.display = 'block'; // 선택 시 보이게
+        container.innerHTML = '';
+        cardContainer.classList.remove('show');
+        mainContent.classList.remove('with-card'); // 초기화
+        mapArea.classList.add('shifted');  // 카드 등장 시
+
+        // 트랜지션 재적용
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                cardContainer.classList.add('show');
+            });
+        });
+
+        const heading = document.createElement('h4');
+        const lang = document.documentElement.lang || 'ko';
+        heading.textContent = lang === 'en'
+            ? deptName + ' Doctor List'
+            : deptName + ' 의사 목록';
+        container.appendChild(heading);
+
+        const queryParam = (lang === 'en')
+            ? deptNameMap[deptName] || deptName
+            : deptName;
+
+        fetch('/api/doctors?department=' + encodeURIComponent(queryParam))
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    const msg = document.createElement('p');
+                    msg.className = 'text-muted';
+                    msg.textContent = (lang === 'en') ? 'There is no registered doctor.' : '등록된 의사가 없습니다.';
+                    container.appendChild(msg);
+                    return;
+                }
+
+                const row = document.createElement('div');
+                row.className = 'row row-cols-1 row-cols-md-2 g-3';
+
+                data.forEach(doc => {
+                    const col = document.createElement('div');
+                    col.className = 'col';
+
+                    const card = document.createElement('div');
+                    card.className = 'card h-100';
+
+                    const img = document.createElement('img');
+                    img.src = doc.profileImage || '/images/default-doctor.jpg';
+                    img.alt = doc.name;
+                    img.className = 'card-img-top';
+                    img.onerror = function () {
+                        this.src = '/images/default-doctor.jpg';
+                    };
+
+
+                    const body = document.createElement('div');
+                    body.className = 'card-body';
+
+                    const name = document.createElement('h5');
+                    name.className = 'card-title';
+                    name.textContent = doc.name;
+
+                    const description = document.createElement('p');
+                    description.className = 'card-text';
+                    description.textContent = (lang === 'en' && doc.descriptionEn) ? doc.descriptionEn : doc.description;
+
+                    const dept = document.createElement('p');
+                    dept.className = 'text-muted';
+                    dept.textContent = deptName;
+
+                    const link = document.createElement('a');
+                    link.href = `http://localhost/doctors/${doc.id}`;
+                    link.className = 'btn btn-sm btn-outline-primary mt-2';
+                    link.textContent = (lang === 'en') ? 'Doctor Profile' : '프로필 보기';
+
+                    body.appendChild(name);
+                    body.appendChild(description);
+                    body.appendChild(dept);
+                    body.appendChild(link);
+                    card.appendChild(img);
+                    card.appendChild(body);
+                    col.appendChild(card);
+                    row.appendChild(col);
+                });
+
+                container.appendChild(row);
+                mainContent.classList.add('with-card'); // 카드 있으면 좌우 정렬로 전환
+            })
+            .catch(err => {
+                console.error('의사 목록 로드 실패:', err);
+            });
+    }
+
+
+    function updateMainContentClass() {
+        const cardBox = document.getElementById('doctorCardBox');
+        const mainContent = document.getElementById('mainContent');
+        const mapArea = document.getElementById('mapArea');
+        const isEmpty = cardBox.innerHTML.trim() === '';
+
+        mainContent.classList.toggle('only-map', isEmpty);
+        mapArea.classList.toggle('only', isEmpty);
+    }
+
+    const deptNameMap = {
+        'Internal Medicine': '내과',
+        'Surgical': '외과',
+        'Pediatrics': '소아청소년과',
+        'Orthopedics': '정형외과',
+        'Department of Rehabilitation': '재활의학과',
+        'Obstetrics and Gynecology': '산부인과',
+        'Neurology': '신경과',
+        'Otolaryngology': '이비인후과',
+        'Ophthalmology': '안과',
+        'Urology': '비뇨의학과',
+        'Department of Psychiatry': '정신건강의학과',
+        'Family Medicine': '가정의학과',
+        'Emergency Medicine': '응급의학과',
+        'Radiology': '영상의학과',
+        'Dermatology': '피부과',
+        'Department of Anesthesiology and Pain Medicine': '마취통증의학과',
+        'Herbal Medicine': '한방과',
+        'Occupational and Environmental Medicine': '직업환경의학과',
+        'Nuclear Medicine': '핵의학과',
+        'Department of Diagnostic Laboratory Medicine': '진단검사의학과',
+        'Department of Clinical Pathology': '병리과',
+        'Dental': '치과',
+    };
+
+
+    // 과 이름과 해당 좌표의 중앙 위치 매핑
+    const markerCoordsByFloor = {
+        1: {
+            '내과': { x: 91, y: 207 },
+            '외과': { x: 175, y: 281 },
+            '소아청소년과': { x: 251, y: 385 },
+            '정형외과': { x: 392, y: 447 },
+            '재활의학과': { x: 410, y: 338 },
+            '산부인과': { x: 462, y: 264 },
+            '신경과': { x: 361, y: 196 },
+            '이비인후과': { x: 250, y: 127 },
+        },
+        2: {
+            '안과': { x: 91, y: 207 },
+            '비뇨의학과': { x: 175, y: 281 },
+            '정신건강의학과': { x: 251, y: 385 },
+            '가정의학과': { x: 392, y: 447 },
+            '응급의학과': { x: 410, y: 338 },
+            '영상의학과': { x: 462, y: 264 },
+            '피부과': { x: 361, y: 196 },
+            '마취통증의학과': { x: 250, y: 127 },
+        },
+        3: {
+            '한방과': { x: 88, y: 248 },
+            '직업환경의학과': { x: 254, y: 386 },
+            '핵의학과': { x: 400, y: 444 },
+            '진단검사의학과': { x: 408, y: 336 },
+            '병리과': { x: 462, y: 262 },
+            '치과': { x: 326, y: 180 },
+        }
+    };
+
+
+    let currentFloor = 1; // 기본은 1층
+
+    function getCurrentFloor() {
+        return currentFloor;
+    }
+
+    function moveMarker(deptName) {
+        const floor = getCurrentFloor();
+        const isKorean = document.documentElement.lang === 'ko';
+        const realName = isKorean ? deptName : deptNameMap[deptName]; // ← 매핑
+        const coords = markerCoordsByFloor[floor]?.[realName];
+
+        // 마커 ID 지정
+        const marker = document.getElementById(`marker_${floor}`);
+
+        // 마커 초기화
+        [1, 2, 3].forEach(f => {
+            const m = document.getElementById(`marker_${f}`);
+            if (m) m.style.display = 'none';
+        });
+
+        if (marker && coords) {
+            marker.style.left = coords.x + 'px';
+            marker.style.top = coords.y + 'px';
+            marker.style.display = 'block';
+        }
+    }
+
+
+    window.onload = () => showFloor(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{signup.title}">회원가입 - 더조은 병원</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(220, 38, 38, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .signup-container {
+            max-width: 600px;
+            margin: 120px auto 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signup-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent), var(--hospital-success));
+            border-radius: 20px 20px 0 0;
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .signup-header h3 {
+            color: var(--hospital-dark);
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .signup-header p {
+            color: var(--hospital-gray);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .form-label {
+            color: var(--hospital-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--hospital-border);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--hospital-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        .form-control::placeholder {
+            color: var(--hospital-gray);
+            opacity: 0.7;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, var(--hospital-secondary), var(--hospital-primary));
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--hospital-border);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: var(--hospital-gray);
+        }
+
+        .btn-outline-secondary:hover {
+            border-color: var(--hospital-primary);
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--hospital-primary);
+            transform: translateY(-1px);
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .text-success {
+            color: var(--hospital-success) !important;
+        }
+
+        .text-danger {
+            color: var(--hospital-danger) !important;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--hospital-border);
+        }
+
+        .login-link a {
+            color: var(--hospital-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .login-link a:hover {
+            color: var(--hospital-secondary);
+            transform: translateY(-1px);
+        }
+
+        .login-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--hospital-primary);
+            transition: width 0.3s ease;
+        }
+
+        .login-link a:hover::after {
+            width: 100%;
+        }
+
+        /* 입력 필드 아이콘 */
+        .input-group-text {
+            background: transparent;
+            border: 2px solid var(--hospital-border);
+            border-right: none;
+            color: var(--hospital-gray);
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .input-group .form-control:focus + .input-group-text {
+            border-color: var(--hospital-primary);
+        }
+
+        /* 전화번호 입력 필드 */
+        .phone-inputs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .phone-inputs .form-control {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* 주소 입력 필드 */
+        .address-section {
+            background: rgba(248, 250, 252, 0.5);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--hospital-border);
+            margin-bottom: 1.5rem;
+        }
+
+        .address-section .form-label {
+            color: var(--hospital-primary);
+            font-weight: 700;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .signup-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 576px) {
+            .signup-container {
+                margin: 100px 1rem 60px;
+                padding: 2rem;
+            }
+
+            .phone-inputs {
+                flex-direction: column;
+            }
+
+            .address-section {
+                padding: 1rem;
+            }
+        }
+
+        /* 진행률 표시 */
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--hospital-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--hospital-gray);
+            font-weight: 600;
+            font-size: 0.8rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-step.active {
+            background: var(--hospital-primary);
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: var(--hospital-success);
+            color: white;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--hospital-border);
+            z-index: 1;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 필수 필드 표시 */
+        .required::after {
+            content: ' *';
+            color: var(--hospital-danger);
+            font-weight: 700;
+        }
+
+        /* 성별 선택 스타일 */
+        .gender-options {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .gender-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--hospital-border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .gender-option:hover {
+            border-color: var(--hospital-primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .gender-option.selected {
+            border-color: var(--hospital-primary);
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--hospital-primary);
+            font-weight: 600;
+        }
+
+        .gender-option input[type="radio"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="signup-container">
+    <div class="signup-header">
+        <h3><i class="bi bi-person-plus-fill text-primary me-2"></i><span th:text="#{signup}">회원가입</span></h3>
+        <p th:text="#{signup.guide}">더조은 병원의 회원이 되어 편리한 서비스를 이용하세요</p>
+    </div>
+
+    <!-- 진행률 표시 -->
+    <div class="progress-indicator">
+        <div class="progress-line">
+            <div class="progress-line-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-step active" data-step="1">1</div>
+        <div class="progress-step" data-step="2">2</div>
+        <div class="progress-step" data-step="3">3</div>
+        <div class="progress-step" data-step="4">4</div>
+    </div>
+
+    <form method="post" action="/signup" onsubmit="mergePhoneAndAddress()" id="signupForm">
+        <!-- 이름 -->
+        <div class="mb-4">
+            <label class="form-label required">
+                <i class="bi bi-person me-2"></i><span th:text="#{name}">이름</span>
+            </label>
+            <input type="text" name="name" class="form-control" th:placeholder="#{name.real.placeholder}" placeholder="실명을 입력해주세요" required>
+        </div>
+
+        <!-- 이메일 -->
+        <div class="mb-4">
+            <label class="form-label required">
+                <i class="bi bi-envelope me-2"></i><span th:text="#{email}">이메일</span>
+            </label>
+            <div class="input-group">
+                <input type="email" id="email" name="email" class="form-control" th:value="${userDto.email}" th:placeholder="#{email.placeholder}" placeholder="example@email.com" required>
+                <button type="button" class="btn btn-outline-secondary" onclick="checkEmail()">
+                    <i class="bi bi-check-circle me-1"></i><span th:text="#{email.duplicate.check}">중복확인</span>
+                </button>
+            </div>
+            <div id="emailCheckResult" class="form-text"></div>
+        </div>
+
+        <!-- 주소 (다음 API) -->
+        <div class="address-section">
+            <label class="form-label required">
+                <i class="bi bi-geo-alt me-2"></i><span th:text="#{address}">주소</span>
+            </label>
+            <div class="input-group mb-3">
+                <input type="text" id="postcode" class="form-control" th:placeholder="#{postcode.placeholder}" placeholder="우편번호" readonly>
+                <button type="button" class="btn btn-outline-secondary" onclick="execDaumPostcode()">
+                    <i class="bi bi-search me-1"></i><span th:text="#{postcode.search}">우편번호 찾기</span>
+                </button>
+            </div>
+            <input type="text" id="roadAddress" class="form-control mb-3" th:placeholder="#{roadaddress.placeholder}" placeholder="도로명주소" readonly>
+            <input type="text" id="detailAddress" class="form-control mb-3" th:placeholder="#{detailaddress.placeholder}" placeholder="상세주소">
+            <input type="text" id="extraAddress" class="form-control mb-2" th:placeholder="#{extraaddress.placeholder}" placeholder="참고항목" readonly>
+            <span id="guide" style="display:none;"></span>
+        </div>
+
+        <!-- 전화번호 -->
+        <div class="mb-4">
+            <label class="form-label required">
+                <i class="bi bi-telephone me-2"></i><span th:text="#{phone}">전화번호</span>
+            </label>
+            <div class="phone-inputs">
+                <input type="text" id="phone1" class="form-control only-number" maxlength="3" th:placeholder="#{phone1.placeholder}" placeholder="010" required>
+                <input type="text" id="phone2" class="form-control only-number" maxlength="4" th:placeholder="#{phone2.placeholder}" placeholder="1234" required>
+                <input type="text" id="phone3" class="form-control only-number" maxlength="4" th:placeholder="#{phone3.placeholder}" placeholder="5678" required>
+            </div>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="mb-4">
+            <label class="form-label required">
+                <i class="bi bi-lock me-2"></i><span th:text="#{password}">비밀번호</span>
+            </label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <!-- 생년월일 -->
+        <div class="mb-4">
+            <label class="form-label required">
+                <i class="bi bi-calendar me-2"></i><span th:text="#{birthdate}">생년월일</span>
+            </label>
+            <input type="date" name="birthDate" class="form-control" id="birthDate" required>
+        </div>
+
+        <!-- 성별 -->
+        <div class="mb-4">
+            <label class="form-label required">
+                <i class="bi bi-gender-ambiguous me-2"></i><span th:text="#{gender}">성별</span>
+            </label>
+            <div class="gender-options">
+                <label class="gender-option" onclick="selectGender('M')">
+                    <input type="radio" name="gender" value="M">
+                    <i class="bi bi-gender-male me-2"></i><span th:text="#{gender.male}">남성</span>
+                </label>
+                <label class="gender-option" onclick="selectGender('F')">
+                    <input type="radio" name="gender" value="F">
+                    <i class="bi bi-gender-female me-2"></i><span th:text="#{gender.female}">여성</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Hidden 필드 -->
+        <input type="hidden" name="phone" id="fullPhone">
+        <input type="hidden" name="address" id="fullAddress">
+
+        <div class="d-grid">
+            <button type="button" onclick="submitForm()" class="btn btn-primary btn-lg">
+                <i class="bi bi-person-plus me-2"></i><span th:text="#{signup}">회원가입</span>
+            </button>
+        </div>
+    </form>
+
+    <div class="login-link">
+        <a href="/login">
+            <i class="bi bi-arrow-left me-1"></i><span th:text="#{already.have.account}">이미 계정이 있으신가요? 로그인</span>
+        </a>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<input type="hidden" id="emailChecked" value="false">
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Daum 주소 API -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+<script>
+    // 진행률 업데이트 함수
+    function updateProgress() {
+        const inputs = document.querySelectorAll('input[required], select[required]');
+        const totalFields = inputs.length;
+        let filledFields = 0;
+
+        inputs.forEach(input => {
+            if (input.value.trim() !== '') {
+                filledFields++;
+            }
+        });
+
+        const progress = (filledFields / totalFields) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+
+        // 진행 단계 표시
+        const steps = document.querySelectorAll('.progress-step');
+        const currentStep = Math.ceil(progress / 25);
+
+        steps.forEach((step, index) => {
+            step.classList.remove('active', 'completed');
+            if (index + 1 < currentStep) {
+                step.classList.add('completed');
+            } else if (index + 1 === currentStep) {
+                step.classList.add('active');
+            }
+        });
+    }
+
+    // 성별 선택 함수
+    function selectGender(gender) {
+        document.querySelectorAll('.gender-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+        event.target.closest('.gender-option').classList.add('selected');
+        document.querySelector(`input[value="${gender}"]`).checked = true;
+        updateProgress();
+    }
+
+    // 폼 필드 변경 감지
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', updateProgress);
+            input.addEventListener('change', updateProgress);
+        });
+        updateProgress();
+    });
+
+    document.getElementById("email").addEventListener("input", function () {
+      document.getElementById("emailChecked").value = "false";
+      const resultDiv = document.getElementById("emailCheckResult");
+      resultDiv.textContent = "[[#{signup.email.check.need}]]";
+      resultDiv.classList.remove("text-success");
+      resultDiv.classList.add("text-danger");
+      updateProgress();
+    });
+
+    // 숫자만 입력되게
+    document.querySelectorAll('.only-number').forEach(input => {
+      input.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        updateProgress();
+      });
+    });
+
+    // 생년월일 오늘 이후 선택 못하도록
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('birthDate').setAttribute('max', today);
+    });
+
+    function execDaumPostcode() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          let roadAddr = data.roadAddress;
+          let extraAddr = '';
+          if(data.bname && /[동|로|가]$/g.test(data.bname)) extraAddr += data.bname;
+          if(data.buildingName && data.apartment === 'Y') {
+            extraAddr += (extraAddr ? ', ' + data.buildingName : data.buildingName);
+          }
+          if(extraAddr) extraAddr = ' (' + extraAddr + ')';
+
+          document.getElementById("postcode").value = data.zonecode;
+          document.getElementById("roadAddress").value = roadAddr;
+          document.getElementById("extraAddress").value = extraAddr;
+          updateProgress();
+        }
+      }).open();
+    }
+
+    function mergePhoneAndAddress() {
+      const emailChecked = document.getElementById("emailChecked").value;
+      if (emailChecked !== "true") {
+        alert("[[#{signup.email.check.need}]]");
+        return false;
+      }
+
+      const selected = document.querySelector('input[name="gender"]:checked');
+      if (!selected) {
+        alert("[[#{gender.select}]]");
+        return false;
+      }
+
+      // 전화번호 병합
+      const p1 = document.getElementById("phone1").value;
+      const p2 = document.getElementById("phone2").value;
+      const p3 = document.getElementById("phone3").value;
+      document.getElementById("fullPhone").value = `${p1}-${p2}-${p3}`;
+
+      // 주소 병합
+      const postCode = document.getElementById("postcode").value;
+      if (postCode === "") {
+        alert("[[#{social_signup.postcode.required}]]");
+        document.getElementById("postcode").focus();
+        return false; // 제출 막기
+      }
+      const road = document.getElementById("roadAddress").value;
+      const detail = document.getElementById("detailAddress").value;
+      const extra = document.getElementById("extraAddress").value;
+      document.getElementById("fullAddress").value = `${postCode}/${road}/${detail}/${extra}`.trim();
+
+      return true;
+    }
+
+    function submitForm() {
+        const form = document.getElementById("signupForm");
+
+        // 브라우저 기본 유효성 검사 실행
+        if (!form.checkValidity()) {
+            form.reportValidity();  // 사용자에게 어떤 항목이 문제인지 보여줌
+            return;
+        }
+
+        // 커스텀 유효성 검사 (이메일 체크됨, 성별, 주소 등)
+        if (mergePhoneAndAddress()) {
+            form.submit();
+        }
+    }
+
+    function checkEmail() {
+        const emailInput = document.getElementById("email");
+        const email = emailInput.value.trim();
+        const resultDiv = document.getElementById("emailCheckResult");
+
+        // 이메일 입력 여부 확인
+        if (!email) {
+            resultDiv.textContent = "[[#{email.input.need}]]";
+            resultDiv.classList.remove("text-success");
+            resultDiv.classList.add("text-danger");
+            return;
+        }
+
+        // 이메일 형식 검사
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            resultDiv.textContent = "[[#{email.format.invalid}]]";
+            resultDiv.classList.remove("text-success");
+            resultDiv.classList.add("text-danger");
+            return;
+        }
+
+        // 서버에 중복확인 요청
+        fetch(`/check_email?email=${encodeURIComponent(email)}`)
+            .then(res => res.text())
+            .then(status => {
+                if (status === "duplicate") {
+                    resultDiv.textContent = "[[#{email.duplicate}]]";
+                    resultDiv.classList.remove("text-success");
+                    resultDiv.classList.add("text-danger");
+                    document.getElementById("emailChecked").value = "false";
+                } else {
+                    resultDiv.textContent = "[[#{email.available}]]";
+                    resultDiv.classList.remove("text-danger");
+                    resultDiv.classList.add("text-success");
+                    document.getElementById("emailChecked").value = "true";
+                }
+                updateProgress();
+            })
+            .catch(() => {
+                resultDiv.textContent = "[[#{email.error}]]";
+                resultDiv.classList.remove("text-success");
+                resultDiv.classList.add("text-danger");
+                document.getElementById("emailChecked").value = "false";
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var signupForm = document.querySelector('form[action="/signup"]');
+        var signupBtn = document.querySelector('button[type="submit"].btn-primary');
+        if (signupForm && signupBtn) {
+            signupForm.addEventListener('submit', function(event) {
+                // mergePhoneAndAddress()가 false면 제출 막고 버튼 복구
+                if (typeof mergePhoneAndAddress === 'function' && !mergePhoneAndAddress()) {
+                    signupBtn.disabled = false;
+                    event.preventDefault();
+                    return false;
+                }
+                signupBtn.disabled = true;
+            });
+        }
+    });
+</script>
+</body>
+</html>
+

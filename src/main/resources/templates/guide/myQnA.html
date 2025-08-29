@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{myqna.title}">내가 문의한 글</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            margin-top: 200px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 100px;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin: 2rem auto;
+            padding: 2.5rem;
+            max-width: 1000px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .page-header h2 {
+            color: #2c3e50;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .page-header .subtitle {
+            color: #6c757d;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .qna-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .qna-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .qna-card-body {
+            padding: 2rem;
+        }
+
+        .qna-title {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.3rem;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .qna-title:hover {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .qna-meta {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f8f9fa;
+        }
+
+        .qna-meta i {
+            margin-right: 0.5rem;
+            color: #007bff;
+            width: 16px;
+        }
+
+        .status-badge {
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-answered {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-state i {
+            font-size: 5rem;
+            color: #dee2e6;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h4 {
+            color: #495057;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: #6c757d;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 30px;
+            padding: 1rem 2.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(135deg, #0056b3, #004085);
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .page-header h2 {
+                font-size: 2.2rem;
+            }
+
+            .qna-card-body {
+                padding: 1.5rem;
+            }
+
+            .qna-title {
+                font-size: 1.1rem;
+            }
+
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stat-card {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.6s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <div class="container-fluid">
+        <div class="main-container fade-in">
+            <div class="page-header">
+                <h2><i class="fas fa-clipboard-list me-3"></i><span th:text="#{myqna.title}">내가 문의한 글</span></h2>
+                <p class="subtitle" th:text="#{myqna.subtitle}">문의하신 내용과 답변 상태를 한눈에 확인하세요</p>
+            </div>
+
+            <!-- 통계 섹션 -->
+            <div class="stats-container" th:if="${!#lists.isEmpty(qnaList)}">
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${#lists.size(qnaList)}">0</div>
+                    <div class="stat-label" th:text="#{myqna.stats.total}">전체 문의</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${#lists.size(qnaList.?[isAnswered == true])}">0</div>
+                    <div class="stat-label" th:text="#{myqna.stats.answered}">답변 완료</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" th:text="${#lists.size(qnaList.?[isAnswered == false])}">0</div>
+                    <div class="stat-label" th:text="#{myqna.stats.pending}">답변 대기</div>
+                </div>
+            </div>
+
+            <!-- QnA 목록 -->
+            <div th:if="${!#lists.isEmpty(qnaList)}">
+                <h3 class="section-title" th:text="#{myqna.list.title}">문의 목록</h3>
+                <div class="qna-card" th:each="qna, iterStat : ${qnaList}" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+                    <div class="qna-card-body slide-in">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <a th:href="@{/guide/myQnA/{qnaId}(qnaId=${qna.qnaId})}" class="qna-title">
+                                    <i class="fas fa-question-circle me-2"></i>
+                                    <span th:text="${qna.title}">제목</span>
+                                </a>
+                                <div class="qna-meta">
+                                    <span>
+                                        <i class="fas fa-tag"></i>
+                                        <span th:switch="${qna.qnaCategory}">
+                                            <span th:case="'병원이용안내'" th:text="#{faq.category.hospital.guide}">병원이용안내</span>
+                                            <span th:case="'증명서발급'" th:text="#{faq.category.certificate}">증명서발급</span>
+                                            <span th:case="'홈페이지이용'" th:text="#{faq.category.website}">홈페이지이용</span>
+                                            <span th:case="'기타'" th:text="#{faq.category.etc}">기타</span>
+                                            <span th:case="*" th:text="${qna.qnaCategory}">기타</span>
+                                        </span>
+                                    </span>
+                                    <span class="ms-4"><i class="fas fa-calendar-alt"></i><span th:text="#{myqna.created.date} + ': ' + ${#temporals.format(qna.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</span></span>
+                                </div>
+                            </div>
+                            <span class="status-badge"
+                                  th:classappend="${qna.isAnswered} ? 'status-answered' : 'status-pending'">
+                                <i class="fas" th:classappend="${qna.isAnswered} ? 'fa-check-circle' : 'fa-clock'"></i>
+                                <span th:text="#{${qna.isAnswered ? 'myqna.status.answered' : 'myqna.status.pending'}}">상태</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 빈 상태 -->
+            <div class="empty-state" th:if="${#lists.isEmpty(qnaList)}">
+                <i class="fas fa-inbox"></i>
+                <h4 th:text="#{myqna.empty.title}">아직 문의한 글이 없습니다</h4>
+                <p th:utext="#{myqna.empty.content}">궁금한 점이 있으시면 언제든 문의해 주세요.<br>빠른 답변을 드리도록 하겠습니다.</p>
+                <a href="/guide/qnaWrite" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i><span th:text="#{myqna.empty.button}">새 문의 작성하기</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+<!-- 페이지 로드 시 애니메이션 스크립트-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.qna-card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    });
+</script>
+</html>

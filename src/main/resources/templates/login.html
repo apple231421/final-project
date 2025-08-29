@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{login.title}">로그인 - 더조은 병원</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(220, 38, 38, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .login-container {
+            max-width: 450px;
+            margin: 120px auto 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent), var(--hospital-success));
+            border-radius: 20px 20px 0 0;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-header h3 {
+            color: var(--hospital-dark);
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-header p {
+            color: var(--hospital-gray);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .form-label {
+            color: var(--hospital-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border: 2px solid var(--hospital-border);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control:focus {
+            border-color: var(--hospital-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        .form-control::placeholder {
+            color: var(--hospital-gray);
+            opacity: 0.7;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--hospital-primary), var(--hospital-accent));
+            border: none;
+            border-radius: 12px;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, var(--hospital-secondary), var(--hospital-primary));
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .login-links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--hospital-border);
+        }
+
+        .login-links a {
+            margin: 0 0.75rem;
+            color: var(--hospital-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .login-links a:hover {
+            color: var(--hospital-secondary);
+            transform: translateY(-1px);
+        }
+
+        .login-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--hospital-primary);
+            transition: width 0.3s ease;
+        }
+
+        .login-links a:hover::after {
+            width: 100%;
+        }
+
+        .social-login {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--hospital-border);
+        }
+
+        .social-login h6 {
+            text-align: center;
+            color: var(--hospital-gray);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-social {
+            flex: 1;
+            max-width: 150px;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-google {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            border: none;
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+            color: white;
+        }
+
+        .btn-kakao {
+            background: linear-gradient(135deg, #fee500, #ffd700);
+            color: #3c1e1e;
+            border: none;
+        }
+
+        .btn-kakao:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(254, 229, 0, 0.4);
+            color: #3c1e1e;
+        }
+
+        /* 모달 스타일 */
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--hospital-border);
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-title {
+            color: var(--hospital-dark);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--hospital-border);
+            padding: 1.5rem 2rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--hospital-gray);
+            transition: color 0.3s ease;
+        }
+
+        .btn-close:hover {
+            color: var(--hospital-danger);
+        }
+
+        /* 에러 모달 */
+        .modal-content.text-center {
+            border-left: 4px solid var(--hospital-danger);
+        }
+
+        .text-danger.fw-bold {
+            font-size: 1.1rem;
+            padding: 1rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 576px) {
+            .login-container {
+                margin: 100px 1rem 60px;
+                padding: 2rem;
+            }
+
+            .social-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-social {
+                max-width: 200px;
+                width: 100%;
+            }
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* 입력 필드 아이콘 */
+        .input-group-text {
+            background: transparent;
+            border: 2px solid var(--hospital-border);
+            border-right: none;
+            color: var(--hospital-gray);
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .input-group .form-control:focus + .input-group-text {
+            border-color: var(--hospital-primary);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="login-container">
+    <div class="login-header">
+        <h3><i class="bi bi-heart-pulse-fill text-danger me-2"></i><span th:text="#{hospital.name}">더조은 병원</span></h3>
+        <p th:text="#{login.guide}">안전하고 편리한 진료 서비스를 이용하세요</p>
+    </div>
+
+    <form method="post" action="/login">
+        <div class="mb-4">
+            <label for="email" class="form-label">
+                <i class="bi bi-envelope me-2"></i><span th:text="#{email}">이메일</span>
+            </label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="email" name="email" th:placeholder="#{email.placeholder}" placeholder="example@email.com" required>
+                <span class="input-group-text">
+                        <i class="bi bi-envelope"></i>
+                    </span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label for="password" class="form-label">
+                <i class="bi bi-lock me-2"></i><span th:text="#{password}">비밀번호</span>
+            </label>
+            <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" th:placeholder="#{password.placeholder}" placeholder="비밀번호를 입력하세요" required>
+                <span class="input-group-text">
+                        <i class="bi bi-lock"></i>
+                    </span>
+            </div>
+        </div>
+
+        <div class="d-grid mb-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right me-2"></i><span th:text="#{login}">로그인</span>
+            </button>
+        </div>
+    </form>
+
+    <div class="login-links">
+        <a href="/signup">
+            <i class="bi bi-person-plus me-1"></i><span th:text="#{signup}">회원가입</span>
+        </a>
+        <span class="text-muted">|</span>
+        <a data-bs-toggle="modal" data-bs-target="#findIdModal" style="cursor:pointer;">
+            <i class="bi bi-search me-1"></i><span th:text="#{find.id}">아이디 찾기</span>
+        </a>
+        <span class="text-muted">|</span>
+        <a data-bs-toggle="modal" data-bs-target="#findPwModal" style="cursor:pointer;">
+            <i class="bi bi-key me-1"></i><span th:text="#{find.password}">비밀번호 찾기</span>
+        </a>        
+    </div>
+
+    <div class="social-login">
+        <h6><i class="bi bi-shield-check me-2"></i><span th:text="#{social.login.guide}">소셜 계정으로 간편 로그인</span></h6>
+        <div class="social-buttons">
+            <a href="/oauth2/authorization/google" class="btn btn-social btn-google">
+                <i class="bi bi-google"></i>Google
+            </a>
+            <a href="/oauth2/authorization/kakao" class="btn btn-social btn-kakao">
+                <i class="bi bi-chat-dots"></i>Kakao
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 아이디 찾기 모달 -->
+<div class="modal fade" id="findIdModal" tabindex="-1" aria-labelledby="findIdLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="findIdForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="findIdLabel">
+                        <i class="bi bi-search me-2"></i><span th:text="#{find.id}">아이디 찾기</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" th:attr="aria-label=#{close}" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="find_name" class="form-label">
+                            <i class="bi bi-person me-2"></i><span th:text="#{name}">이름</span>
+                        </label>
+                        <input type="text" class="form-control" id="find_name" name="name" th:placeholder="#{name.placeholder}" placeholder="가입 시 등록한 이름을 입력하세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone1" class="form-label">
+                            <i class="bi bi-telephone me-2"></i><span th:text="#{phone}">전화번호</span>
+                        </label>
+                        <div class="d-flex gap-2">
+                            <input type="text" id="phone1" class="form-control only-number" maxlength="3" th:placeholder="#{phone1.placeholder}" placeholder="010" required>
+                            <input type="text" id="phone2" class="form-control only-number" maxlength="4" th:placeholder="#{phone2.placeholder}" placeholder="1234" required>
+                            <input type="text" id="phone3" class="form-control only-number" maxlength="4" th:placeholder="#{phone3.placeholder}" placeholder="5678" required>
+                        </div>
+                    </div>
+                    <div id="findIdResult" class="text-center mt-3"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span th:text="#{cancel}">취소</span></button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-2"></i><span th:text="#{find.id}">아이디 찾기</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 비밀번호 찾기 모달 -->
+<div class="modal fade" id="findPwModal" tabindex="-1" aria-labelledby="findPwLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="/find_password">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="findPwLabel">
+                        <i class="bi bi-key me-2"></i><span th:text="#{find.password}">비밀번호 찾기</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" th:attr="aria-label=#{close}" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="find_email" class="form-label">
+                            <i class="bi bi-envelope me-2"></i><span th:text="#{email}">이메일</span>
+                        </label>
+                        <input type="email" class="form-control" id="find_email" name="email" th:placeholder="#{email.registered.placeholder}" placeholder="가입 시 등록한 이메일을 입력하세요" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="find_name2" class="form-label">
+                            <i class="bi bi-person me-2"></i><span th:text="#{name}">이름</span>
+                        </label>
+                        <input type="text" class="form-control" id="find_name2" name="name" th:placeholder="#{name.placeholder}" placeholder="가입 시 등록한 이름을 입력하세요" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span th:text="#{cancel}">취소</span></button>
+                    <button type="submit" class="btn btn-primary" id="findPwBtn">
+                        <i class="bi bi-key me-2"></i><span th:text="#{find.password}">비밀번호 찾기</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 로그인 에러 모달 -->
+<div class="modal fade" id="loginErrorModal" tabindex="-1" aria-labelledby="loginErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+            <div class="modal-body text-danger fw-bold">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                아이디 또는 비밀번호가 일치하지 않습니다.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const errorParam = /*[[${param.error}]]*/ false;
+    if (errorParam) {
+      const modal = new bootstrap.Modal(document.getElementById('loginErrorModal'));
+      modal.show();
+      setTimeout(() => modal.hide(), 2500); // 2.5초 후 자동 닫기
+    }
+    /*]]>*/
+</script>
+<script>
+    // 뒤로가기 감지 시 새로고침
+    if (performance.navigation.type === 2) {
+      location.reload();
+    }
+
+    // 에러 파라미터 제거
+    if (window.location.search.includes('error=true')) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+
+    // 숫자만 입력되도록 필터링
+    document.querySelectorAll('.only-number').forEach(input => {
+      input.addEventListener('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+    });
+
+    document.getElementById("findIdForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("find_name").value;
+      const phone1 = document.getElementById("phone1").value;
+      const phone2 = document.getElementById("phone2").value;
+      const phone3 = document.getElementById("phone3").value;
+
+      const phone = `${phone1}-${phone2}-${phone3}`;
+
+      fetch("/find_id", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}`
+      })
+        .then(res => res.text())
+        .then(result => {
+          document.getElementById("findIdResult").innerHTML = result;
+        });
+    });
+
+    document.querySelector("#findPwModal form").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("find_email").value.trim();
+        const name = document.getElementById("find_name2").value.trim();
+        const findPwBtn = document.getElementById("findPwBtn");
+        findPwBtn.disabled = true;
+
+        fetch("/find_password", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`
+        })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") {
+                    bootstrap.Modal.getInstance(document.getElementById("findPwModal")).hide();
+                }
+            })
+            .catch(() => {
+                alert("[[#{request.error}]]");
+            })
+            .finally(() => {
+                findPwBtn.disabled = false;
+            });
+    });
+</script>
+</body>
+</html>

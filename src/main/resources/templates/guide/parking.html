@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{parking.title}">실시간 주차관리</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        :root {
+            --hospital-primary: #2563eb;
+            --hospital-secondary: #1e40af;
+            --hospital-accent: #3b82f6;
+            --hospital-success: #059669;
+            --hospital-danger: #dc2626;
+            --hospital-warning: #d97706;
+            --hospital-info: #0891b2;
+            --hospital-light: #f8fafc;
+            --hospital-dark: #1e293b;
+            --hospital-gray: #64748b;
+            --hospital-border: #e2e8f0;
+            --hospital-shadow: rgba(0, 0, 0, 0.1);
+            --hospital-shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--hospital-light);
+            margin: 0;
+        }
+
+        .container {
+            margin: 120px auto;
+        }
+
+        h1.text-center.fw-bold {
+            color: var(--hospital-primary);
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+        }
+
+        .legend-box {
+            width: 70%;
+            height: 100px;
+            margin: 0 auto;
+            border: 1.5px solid var(--hospital-primary);
+            border-radius: 14px;
+            padding: 12px 20px;
+            background-color: #fff;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 1.05rem;
+            font-weight: 600;
+            gap: 10px;
+            color: var(--hospital-dark);
+        }
+
+        .floor-header {
+            max-width: 1100px;
+            margin: 20px auto 0 auto;
+            margin-top: 60px;
+        }
+
+        .floor-section {
+            background-color: #e0e7f1;
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 1100px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px var(--hospital-shadow);
+        }
+
+        .floor-title {
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, #dbefff 60%, #f0f7ff 100%);
+            border-radius: 12px;
+            font-weight: 800;
+            padding: 10px 24px;
+            color: var(--hospital-primary);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .parking_square {
+            width: 180px;
+            height: 280px;
+            border: 3px solid #fff;
+            display: inline-block;
+            margin: 10px;
+            border-radius: 10px;
+            background-color: #fff;
+            position: relative;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+            transition: box-shadow 0.2s;
+        }
+        .parking_square:hover {
+            box-shadow: 0 8px 32px var(--hospital-shadow-lg);
+        }
+
+        .parking_check {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            margin: 20px auto;
+            background-color: var(--hospital-gray);
+            border: 2px solid var(--hospital-dark);
+            box-shadow: 0 0 5px var(--hospital-shadow);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .parking_check.occupied {
+            background-color: var(--hospital-danger);
+            box-shadow: 0 0 10px var(--hospital-danger);
+        }
+
+        .parking_check.available {
+            background-color: var(--hospital-success);
+            box-shadow: 0 0 10px var(--hospital-success);
+        }
+
+        .down_parking {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .available.car {
+            font-size: 1.05rem;
+            color: var(--hospital-dark);
+            background-color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1.5px solid var(--hospital-primary);
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+            font-weight: 700;
+        }
+
+        /* 안내/설명 카드 스타일 */
+        .border.p-4.my-4 {
+            border-left: 5px solid var(--hospital-warning) !important;
+            background: #fff8e1;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--hospital-shadow);
+        }
+        .text-danger {
+            color: var(--hospital-danger) !important;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 991.98px) {
+            .container {
+                margin: 60px 0 0 0;
+                padding: 0 8px;
+            }
+            .legend-box {
+                width: 100%;
+                height: auto;
+                flex-direction: column;
+                gap: 12px;
+                padding: 10px 8px;
+            }
+            .floor-section {
+                padding: 12px;
+            }
+            .parking_square {
+                width: 90px;
+                height: 120px;
+                margin: 4px;
+            }
+            .floor-title {
+                font-size: 1rem;
+                padding: 8px 10px;
+            }
+            .available.car {
+                font-size: 0.95rem;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+
+<!-- 주차안내 설명 영역 -->
+<div class="container">
+    <h1 class="text-center fw-bold" th:text="#{parking.head}">주차안내</h1>
+    <div class="border p-4 my-4" style="border-left: 5px solid #f57c00; background-color: #fff8e1;">
+        <p th:text="#{parking.timeInfo}">
+            주차장은 고객님의 편의를 위해 24시간 운영됩니다.</p><br>
+        <p>
+            <span th:text="#{parking.feeInfo}">요금은 </span>
+            <strong th:text="#{parking.feeInfo2}">입차 후 30분 이내 2,000원</strong>,
+            <span th:text="#{parking.feeInfo3}">이후 </span>
+            <strong th:text="#{parking.feeInfo4}">매 1~10분 초과 시마다 500원</strong>
+            <span th:text="#{parking.feeInfo5}">씩 가산됩니다.</span>
+        </p><br>
+        <p>
+            <small th:text="#{parking.disable}" class="text-danger">
+                ※ 장애인은 50% 할인됩니다. (장애인증 소지자, 복지카드, 국가유공자 카드 소지자 본인에 한함)
+            </small>
+        </p>
+        <p>
+            <strong th:text="#{parking.autoSystem}" class="text-danger">차량번호 인식시스템</strong><br>
+            <span th:text="#{parking.autoSystemInfo}" >차량번호 자동인식 전체를 꼭 기억해 주세요!</span>
+        </p>
+        <p>
+            <strong>📞 <span th:text="#{parking.contact}">문의전화</span>: <span class="text-danger">02-920-5038</span></strong>
+        </p>
+
+    </div>
+
+    <h5 class="mt-4">
+        <span style="color: #d32f2f;">●</span>
+        <span th:text="#{parking.account}">주차요금 정산방법</span>
+    </h5>
+
+    <ul>
+        <li th:text="#{parking.lobby}">신관 2층 로비 및 각 지하주차장 로비</li>
+        <li th:text="#{parking.kioskExample}">예: 화물터치 → 차량번호입력 → 요금확인 → 진료번호 및 바코드 입력 → 2차선 이용 출차</li>
+        <li th:text="#{parking.infoDesk}">신관 지하 2층 안내데스크 정산 가능</li>
+        <li th:utext="#{parking.prepayDesk}">신관 지하 2층(주차관리소) 사전정산소 운영<br>운영시간: 평일 09:00~17:00 / 토요일 09:00~13:00</li>
+    </ul>
+
+    <h5 class="mt-4">
+        <span style="color: #d32f2f;">●</span>
+        <span th:text="#{parking.discount}">주차요금 할인</span>
+    </h5>
+
+    <ul>
+        <li th:text="#{parking.discount.consultation}">
+            진료: 수납영수증, 진료카드, 채혈실확인표, 수술확인서, 입원환자유의사항 등 지참하여 정산
+        </li>
+    </ul>
+
+</div>
+
+<div class="container text-center mt-5">
+    <h1 class="text-center fw-bold mt-5" th:text="#{parking.title2}">실시간 주차관리 시스템</h1>
+
+    <!-- 범례 영역 -->
+    <div class="legend-box d-flex justify-content-center align-items-center gap-4 mt-3">
+        <div class="legend-item d-flex align-items-center gap-2">
+            <div class="parking_check available"></div><span th:text="#{parking.available}">주차가능</span>
+        </div>
+        <div class="legend-item d-flex align-items-center gap-2">
+            <div class="parking_check occupied"></div><span th:text="#{parking.occupied}">주차중</span>
+        </div>
+        <div class="legend-item d-flex align-items-center gap-2">
+            <div class="parking_check"></div><span th:text="#{parking.ambulance}">구급차 전용</span>
+        </div>
+    </div>
+</div>
+
+<!-- 지상 1층 -->
+<div class="floor-header d-flex justify-content-between align-items-center">
+    <h3 class="floor-title" th:text="#{parking.1f}">지상 1층</h3>
+    <div class="available car">
+        <span th:text="#{parking.available}">주차 가능</span> :
+        <span id="available_1" th:text="${carCount}">0</span>
+        <span th:text="#{parking.unit}">대</span>
+    </div>
+</div>
+
+<div class="floor-section">
+    <div class="text-center">
+        <div class="parking_square"><div class="parking_check" id="check1_1"></div></div>
+        <div class="parking_square"><div class="parking_check available" id="check2_1"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check3_1"></div></div>
+        <div class="parking_square"><div class="parking_check available" id="check4_1"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check5_1"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check6_1"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking available" id="check7_1"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check8_1"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check9_1"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check10_1"></div></div>
+    </div>
+</div>
+
+<!-- 지하 1층 -->
+<div class="floor-header d-flex justify-content-between align-items-center">
+    <h3 class="floor-title" th:text="#{parking.b1}">지하 1층</h3>
+    <div class="available car">
+        <span th:text="#{parking.available}">주차 가능</span> :
+        <span id="available_B1" th:text="${carCount}">0</span>
+        <span th:text="#{parking.unit}">대</span>
+    </div>
+</div>
+
+<div class="floor-section">
+    <div class="text-center">
+        <div class="parking_square"><div class="parking_check available" id="check1"></div></div>
+        <div class="parking_square"><div class="parking_check available" id="check2"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check3"></div></div>
+        <div class="parking_square"><div class="parking_check available" id="check4"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check5"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check6"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking available" id="check7"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check8"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check9"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check10"></div></div>
+    </div>
+</div>
+
+
+<!-- 지하 2층 -->
+<div class="floor-header d-flex justify-content-between align-items-center">
+    <h3 class="floor-title" th:text="#{parking.b2}">지하 1층</h3>
+    <div class="available car">
+        <span th:text="#{parking.available}">주차 가능</span> :
+        <span id="available_B2" th:text="${carCount}">0</span>
+        <span th:text="#{parking.unit}">대</span>
+    </div>
+</div>
+
+<div class="floor-section">
+    <div class="text-center">
+        <div class="parking_square"><div class="parking_check occupied" id="check11"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check12"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check13"></div></div>
+        <div class="parking_square"><div class="parking_check available" id="check14"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check15"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check16"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking available" id="check17"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check18"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check19"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check20"></div></div>
+    </div>
+</div>
+
+<!-- 지하 3층 -->
+<div class="floor-header d-flex justify-content-between align-items-center">
+    <h3 class="floor-title" th:text="#{parking.b3}">지하 3층</h3>
+    <div class="available car">
+        <span th:text="#{parking.available}">주차 가능</span> :
+        <span id="available_B3" th:text="${carCount}">0</span>
+        <span th:text="#{parking.unit}">대</span>
+    </div>
+
+</div>
+
+<div class="floor-section">
+    <div class="text-center">
+        <div class="parking_square"><div class="parking_check occupied" id="check21"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check22"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check23"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check24"></div></div>
+        <div class="parking_square"><div class="parking_check occupied" id="check25"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check26"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check27"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check28"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check29"></div></div>
+        <div class="parking_square"><div class="parking_check down_parking occupied" id="check30"></div></div>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script>
+
+    function countAvailableSpots() {
+        // 층별 영역 선택
+        const floor1_1 = document.querySelectorAll('#check1_1, #check2_1, #check3_1, #check4_1, #check5_1, #check6_1, #check7_1, #check8_1, #check9_1, #check10_1');
+        const floor1 = document.querySelectorAll('#check1, #check2, #check3, #check4, #check5, #check6, #check7, #check8, #check9, #check10');
+        const floor2 = document.querySelectorAll('#check11, #check12, #check13, #check14, #check15, #check16, #check17, #check18, #check19, #check20');
+        const floor3 = document.querySelectorAll('#check21, #check22, #check23, #check24, #check25, #check26, #check27, #check28, #check29, #check30');
+
+        // 함수: 주어진 노드리스트에서 available 클래스 수 세기
+        const countAvailable = nodeList => Array.from(nodeList).filter(el => el.classList.contains('available')).length;
+
+        // 결과 반영
+        document.getElementById('available_1').textContent = countAvailable(floor1_1);
+        document.getElementById('available_B1').textContent = countAvailable(floor1);
+        document.getElementById('available_B2').textContent = countAvailable(floor2);
+        document.getElementById('available_B3').textContent = countAvailable(floor3);
+    }
+
+    // 최초 실행
+    countAvailableSpots();
+    // 5초마다 갱신
+    setInterval(countAvailableSpots, 5000);
+
+    <!--    API사용시 활성화 -->
+    // function fetchParkingStatus() {
+    //     fetch('/api/parking-status')
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             // 층별 주차 가능 수 초기화
+    //             let availableCount1 = 0;
+    //             let availableCount2 = 0;
+    //             let availableCount3 = 0;
+    //
+    //             data.forEach(spot => {
+    //                 const el = document.getElementById('check' + spot.spotId);
+    //                 if (el) {
+    //                     // 클래스 초기화 후 상태 적용
+    //                     el.classList.remove('occupied', 'available');
+    //                     el.classList.add(spot.status === 'occupied' ? 'occupied' : 'available');
+    //
+    //                     // 층별 available 카운트
+    //                     if (spot.status === 'available') {
+    //                         if (spot.spotId >= 1 && spot.spotId <= 10) availableCount1++;
+    //                         else if (spot.spotId >= 11 && spot.spotId <= 20) availableCount2++;
+    //                         else if (spot.spotId >= 21 && spot.spotId <= 30) availableCount3++;
+    //                     }
+    //                 }
+    //             });
+    //
+    //             // HTML에 반영
+    //             document.getElementById('available_B1').textContent = availableCount1;
+    //             document.getElementById('available_B2').textContent = availableCount2;
+    //             document.getElementById('available_B3').textContent = availableCount3;
+    //         })
+    //         .catch(err => console.error('주차 상태 불러오기 실패:', err));
+    // }
+    //
+    // fetchParkingStatus();
+    // setInterval(fetchParkingStatus, 5000);
+
+</script>
+
+</body>
+</html>

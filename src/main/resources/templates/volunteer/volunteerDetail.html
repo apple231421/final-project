@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{volunteer.detail.title}">봉사활동 프로그램 신청</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            padding-top: 70px;
+            background-color: #f8f9fa;
+        }
+        
+        .volunteer-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .status-badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+        
+        .status-RECRUITING {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-CLOSED {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .status-ONGOING {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .status-COMPLETED {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+        
+        .file-preview {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-custom {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-apply {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+            border: none;
+            color: white;
+        }
+        
+        .btn-update {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            border: none;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: linear-gradient(45deg, #dc3545, #e83e8c);
+            border: none;
+            color: white;
+        }
+        
+        .btn-back {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            border: none;
+            color: white;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+        }
+        
+        .progress-container {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-bar-custom {
+            height: 100%;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .period-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-custom {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- 헤더 섹션 -->
+    <div class="volunteer-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2" th:text="${volunteer.title}">프로그램 제목</h1>
+                    <div class="d-flex align-items-center gap-3">
+                        <span th:class="'status-badge status-' + ${volunteer.status}">
+                            <span th:switch="${volunteer.status}">
+                                <span th:case="'RECRUITING'" th:text="#{volunteer.status.RECRUITING}">모집중</span>
+                                <span th:case="'CLOSED'" th:text="#{volunteer.status.CLOSED}">모집완료</span>
+                                <span th:case="'ONGOING'" th:text="#{volunteer.status.ONGOING}">진행중</span>
+                                <span th:case="'COMPLETED'" th:text="#{volunteer.status.COMPLETED}">프로그램종료</span>
+                                <span th:text="#{'volunteer.status.' + ${volunteer.status}}">상태</span>
+                            </span>
+                        </span>
+                        <span class="text-light">
+                            <i class="bi bi-people-fill me-1"></i>
+                            <span th:text="${volunteer.applyCount}">0</span> / <span th:text="${volunteer.maxApplyCount}">0</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="period-info">
+                        <h6 class="mb-2"><span class="bi bi-calendar-event me-2"></span><span th:text="#{volunteer.date}">신청기간</span></h6>
+                        <small th:text="${#temporals.format(volunteer.applyStartTime, 'yyyy-MM-dd HH:mm')} + ' ~ ' + ${#temporals.format(volunteer.applyEndTime, 'yyyy-MM-dd HH:mm')}">
+                            2025-01-01 00:00 ~ 2025-01-15 00:00
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4 mb-5">
+        <!-- 모집 현황 카드 -->
+        <div class="info-card">
+            <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i><span th:text="#{volunteer.detail.status}">모집 현황</span></h5>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold"><span th:text="#{volunteer.detail.applyCount}">신청 인원</span>
+                        <span th:text="${volunteer.applyCount} + ' / ' + ${volunteer.maxApplyCount}">0 / 0</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar-custom" 
+                             th:style="'width: ' + ${(volunteer.applyCount / volunteer.maxApplyCount) * 100} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 첨부 파일 섹션 -->
+        <div th:if="${volunteer.filename != null}" class="content-card">
+            <h5 class="mb-3"><i class="bi bi-paperclip me-2"></i><span th:text="#{volunteer.detail.attachment}"></span></h5>
+            
+            <!-- 이미지 파일 -->
+            <div th:if="${volunteer.filename != null and
+                    (#strings.arraySplit(volunteer.filename, '\\.')[1]?.toLowerCase() matches 'jpg|jpeg|png|gif|bmp')}">
+                <div class="file-preview">
+                    <img th:src="@{'/files/' + ${volunteer.filename}}" class="img-fluid w-100" alt="첨부 이미지">
+                </div>
+            </div>
+            
+            <!-- PDF 파일 -->
+            <div th:if="${volunteer.filename != null and
+                    (#strings.arraySplit(volunteer.filename, '\\.')[1]?.toLowerCase() matches 'pdf')}">
+                <div class="file-preview">
+                    <iframe th:src="@{'/files/' + ${volunteer.filename}}" width="100%" height="600px" style="border: none;"></iframe>
+                </div>
+            </div>
+            
+            <!-- 기타 파일 다운로드 -->
+            <div th:if="${volunteer.filename != null and
+                    !(#strings.arraySplit(volunteer.filename, '\\.')[1]?.toLowerCase() matches 'jpg|jpeg|png|gif|bmp|pdf')}">
+                <a th:href="@{'/files/' + ${volunteer.filename}}" class="btn btn-custom btn-secondary">
+                    <i class="bi bi-download me-2"></i>
+                    <span th:text="#{volunteer.detail.download}">첨부파일 다운로드</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 프로그램 내용 -->
+        <div class="content-card">
+            <h5 class="mb-3"><span class="bi bi-file-text me-2"></span><span th:text="#{volunteer.detail.content}">프로그램 내용</span></h5>
+            <div class="program-content" th:utext="${volunteer.content}">
+                프로그램 내용
+            </div>
+        </div>
+
+        <!-- 액션 버튼들 -->
+        <div class="content-card">
+            <!-- 로그인 안 한 경우 안내 메시지 -->
+            <div th:if="${!isLoggedIn}" class="text-center">
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <a th:href="@{/login}" th:text="#{volunteer.detail.login}">로그인</a> 
+                    <span th:text="#{volunteer.detail.loginRequired}">후 신청 가능합니다.</span>
+                </div>
+            </div>
+
+            <!-- 신청 버튼 -->
+            <form th:if="${isLoggedIn and !isApplied and volunteer.applyCount < volunteer.maxApplyCount and volunteer.status != 'CLOSED'
+            and volunteer.status != T(THE_JEONG.Hospital.constant.VolunteerStatus).CLOSED and volunteer.status != T(THE_JEONG.Hospital.constant.VolunteerStatus).COMPLETED
+            and volunteer.status != T(THE_JEONG.Hospital.constant.VolunteerStatus).ONGOING}"
+                  th:action="@{/volunteer/apply/{id}(id=${volunteer.volunteerId})}" method="post"
+                  sec:authorize="!hasRole('A')" class="text-center">
+                <button type="submit" class="btn btn-custom btn-apply">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <span th:text="#{volunteer.detail.apply}">신청하기</span>
+                </button>
+            </form>
+
+            <!-- 취소 버튼 -->
+            <form th:if="${isLoggedIn and isApplied
+                     and volunteer.status != T(THE_JEONG.Hospital.constant.VolunteerStatus).COMPLETED
+                     and volunteer.applyEndTime.isAfter(T(java.time.LocalDateTime).now())}"
+                  th:action="@{/volunteer/cancel/{id}(id=${volunteer.volunteerId})}" method="post"
+                  sec:authorize="!hasRole('A')" class="text-center">
+                <button type="submit" class="btn btn-custom btn-cancel">
+                    <i class="bi bi-x-circle me-2"></i>
+                    <span th:text="#{volunteer.detail.cancel}">신청 취소</span>
+                </button>
+            </form>
+
+            <!-- 관리자 버튼들 -->
+            <div sec:authorize="hasRole('A')" class="action-buttons">
+                <!-- 수정 버튼 -->
+                <form id="updateForm" th:if="${volunteer.status != T(THE_JEONG.Hospital.constant.VolunteerStatus).COMPLETED}"
+                        th:action="@{/volunteer/volunteerUpdate/{id}(id=${volunteer.volunteerId})}" method="get">
+                    <button type="submit" class="btn btn-custom btn-update">
+                        <i class="bi bi-pencil me-2"></i>
+                        <span th:text="#{volunteer.detail.update}">수정하기</span>
+                    </button>
+                </form>
+
+                <!-- 삭제 버튼 -->
+                <form th:action="@{/volunteer/delete/{id}(id=${volunteer.volunteerId})}" method="post"
+                      onsubmit="return confirm(deleteConfirmMessage);">
+                    <button type="submit" class="btn btn-custom btn-delete">
+                        <i class="bi bi-trash me-2"></i>
+                        <span th:text="#{volunteer.detail.delete}">삭제하기</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 목록으로 돌아가기 버튼 -->
+            <div class="text-center mt-4">
+                <a th:href="@{/volunteer/volunteerHome}" class="btn btn-custom btn-back">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    <span th:text="#{volunteer.detail.back}">목록으로 돌아가기</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var deleteConfirmMessage = [[#{volunteer.detail.alert.delete}]];
+        const applyCount = [[${volunteer.applyCount}]];
+        const updateForm = document.getElementById('updateForm');
+
+        if (updateForm) {
+            updateForm.addEventListener('submit', function (e) {
+                if (applyCount > 0) {
+                    e.preventDefault();
+                    alert([[#{volunteer.detail.alert.noEdit}]]);
+                }
+            });
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>
