@@ -1,7 +1,7 @@
 # 🏥 Final Project - Hospital Web Application
 
 > **Spring Boot + Thymeleaf 기반 병원 웹 애플리케이션**  
-> 진료과/의사 관리, 예약, 게시판(공지/뉴스/보도), Q&A, 자원봉사,  
+> 진료과/의사 관리, 예약, 게시판, Q&A, 자원봉사,  
 > OAuth 로그인, 이메일 발송, 챗봇(OpenAI) 등 **종합 기능**을 갖춘 프로젝트입니다.
 
 ---
@@ -53,3 +53,8 @@
 - 진단서 및 각종 문서 PDF 생성  
 
 ---
+
+## 🚀 실행 방법
+```bash
+git clone <repository-url>
+./gradlew bootRun
